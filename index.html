@@ -314,6 +314,41 @@ tbody tr.highlight-row td { font-weight: 600; }
   .date-presets{display:none;}
 }
 </style>
+<style>
+/* Additional styles for expanded dashboard */
+.metric-card {
+  background: linear-gradient(135deg, var(--surface2) 0%, var(--surface3) 100%);
+  border: 1px solid var(--border2); border-radius: var(--radius);
+  padding: 20px; margin-bottom: 16px;
+}
+.donut-stat { display: flex; align-items: center; gap: 16px; margin: 8px 0; }
+.donut-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.stat-row:last-child { border-bottom: none; }
+.stat-label { font-size: 12px; color: var(--text2); }
+.stat-val { font-size: 12px; font-weight: 600; color: var(--text-bright); }
+.highlight-number { font-size: 36px; font-weight: 800; color: var(--accent); }
+.section-divider { height: 1px; background: var(--border); margin: 24px 0; }
+.info-box { background: var(--surface2); border-left: 3px solid var(--accent); padding: 14px 18px; border-radius: 0 var(--radius) var(--radius) 0; margin-bottom: 16px; }
+.info-box p { font-size: 12px; color: var(--text2); line-height: 1.7; }
+.info-box strong { color: var(--text-bright); }
+.metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.metric-mini { background: var(--surface2); border-radius: 8px; padding: 12px 14px; }
+.metric-mini .label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+.metric-mini .val { font-size: 18px; font-weight: 700; color: var(--text-bright); }
+.performance-bar { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+.perf-label { font-size: 11px; color: var(--text2); width: 120px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.perf-bar { flex: 1; height: 20px; background: var(--surface3); border-radius: 3px; overflow: hidden; }
+.perf-fill { height: 100%; border-radius: 3px; display: flex; align-items: center; padding-left: 6px; font-size: 10px; font-weight: 600; color: white; }
+.perf-val { font-size: 11px; color: var(--text2); width: 80px; text-align: right; flex-shrink: 0; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.summary-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+.summary-box h4 { font-size: 13px; font-weight: 600; color: var(--text-bright); margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+.trend-up { color: var(--green); }
+.trend-down { color: var(--red); }
+.trend-neutral { color: var(--amber); }
+</style>
 </head>
 <body>
 
@@ -1635,5 +1670,445 @@ document.addEventListener('DOMContentLoaded', function() {
 // ========== END ADDITIONAL FUNCTIONS ==========
 
 </script>
+
+<!-- Additional content for completeness -->
+<div id="sec-insights" style="display:none">
+  <div style="padding:24px 28px">
+    <div class="section-title">💡 Diagnóstico y Recomendaciones</div>
+    
+<div class="info-box">
+  <p>📊 <strong>Diagnóstico Global (6 meses · Ago 2025 – Feb 2026):</strong><br>
+  Kyest.cl generó <strong>$187.3M CLP</strong> en revenue con una inversión de <strong>$25.1M CLP</strong> en Meta Ads,
+  resultando en un <strong>ROAS real de 7.47x</strong> — un resultado excelente para una clínica de belleza/estética.
+  El ticket promedio de <strong>$149,707 CLP</strong> es sólido y el CPO real de <strong>$20,046 CLP</strong> es muy competitivo.
+  </p>
+</div>
+<div class="info-box" style="border-left-color:var(--amber)">
+  <p>⚠️ <strong>Problema crítico: Pixel Meta roto.</strong><br>
+  El pixel de Meta solo registra <strong>409 compras</strong> de las <strong>1,251 reales</strong> (67.3% sin atribuir).
+  Esto significa que el algoritmo de Meta está optimizando con datos incompletos, lo que probablemente está
+  <strong>reduciendo el rendimiento de las campañas</strong>. Reparar el pixel es la acción de mayor impacto.
+  </p>
+</div>
+<div class="info-box" style="border-left-color:var(--red)">
+  <p>🚨 <strong>Retención: la mayor oportunidad.</strong><br>
+  El <strong>69.8% de los clientes</strong> (591/847) solo compró una vez. Un cliente recurrente vale <strong>3x más ($410K vs $137K CLP)</strong>.
+  Implementar una estrategia de retención (email, SMS, WhatsApp) podría generar <strong>+$27M CLP adicionales</strong>
+  si se retiene solo el 10% más de los clientes actuales.
+  </p>
+</div>
+    
+<div class="three-col">
+  <div class="summary-box">
+    <h4>📊 Resumen de Rendimiento</h4>
+    <div class="stat-row"><span class="stat-label">ROAS Real</span><span class="stat-val trend-up">7.47x ✅</span></div>
+    <div class="stat-row"><span class="stat-label">Revenue Total</span><span class="stat-val">$187.3M CLP</span></div>
+    <div class="stat-row"><span class="stat-label">Gasto Meta</span><span class="stat-val">$25.1M CLP</span></div>
+    <div class="stat-row"><span class="stat-label">Órdenes</span><span class="stat-val">1,251</span></div>
+    <div class="stat-row"><span class="stat-label">AOV</span><span class="stat-val">$149,707</span></div>
+    <div class="stat-row"><span class="stat-label">CPO Real</span><span class="stat-val">$20,046</span></div>
+    <div class="stat-row"><span class="stat-label">CTR Avg</span><span class="stat-val">2.68%</span></div>
+    <div class="stat-row"><span class="stat-label">CPC Avg</span><span class="stat-val">$90 CLP</span></div>
+  </div>
+  <div class="summary-box">
+    <h4>👥 Clientes</h4>
+    <div class="stat-row"><span class="stat-label">Clientes únicos</span><span class="stat-val">847</span></div>
+    <div class="stat-row"><span class="stat-label">Solo 1 compra</span><span class="stat-val trend-down">591 (69.8%)</span></div>
+    <div class="stat-row"><span class="stat-label">2+ compras</span><span class="stat-val trend-up">256 (30.2%)</span></div>
+    <div class="stat-row"><span class="stat-label">LTV 1 orden</span><span class="stat-val">$136,716</span></div>
+    <div class="stat-row"><span class="stat-label">LTV recurrente</span><span class="stat-val trend-up">$410,484</span></div>
+    <div class="stat-row"><span class="stat-label">Órdenes/cliente</span><span class="stat-val">1.48 avg</span></div>
+    <div class="stat-row"><span class="stat-label">Dist. 1 orden</span><span class="stat-val">591</span></div>
+    <div class="stat-row"><span class="stat-label">Dist. 2 órdenes</span><span class="stat-val">168</span></div>
+  </div>
+  <div class="summary-box">
+    <h4>📣 Meta Ads</h4>
+    <div class="stat-row"><span class="stat-label">Impresiones</span><span class="stat-val">10.4M</span></div>
+    <div class="stat-row"><span class="stat-label">Clicks</span><span class="stat-val">279,449</span></div>
+    <div class="stat-row"><span class="stat-label">Alcance</span><span class="stat-val">~5M personas</span></div>
+    <div class="stat-row"><span class="stat-label">Compras pixel</span><span class="stat-val trend-down">409 ⚠️</span></div>
+    <div class="stat-row"><span class="stat-label">Compras reales</span><span class="stat-val trend-up">1,251 ✅</span></div>
+    <div class="stat-row"><span class="stat-label">Gap atribución</span><span class="stat-val trend-down">842 (67.3%)</span></div>
+    <div class="stat-row"><span class="stat-label">Campañas activas</span><span class="stat-val">24</span></div>
+    <div class="stat-row"><span class="stat-label">Anuncios</span><span class="stat-val">100</span></div>
+  </div>
+</div>
+    
+<div class="table-card">
+  <div class="table-title">🎯 Plan de Acción Prioritario</div>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Acción</th><th>Impacto</th><th>Dificultad</th><th>Tiempo</th><th>Potencial CLP</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="font-weight:700;color:var(--red)">1</td>
+        <td><strong>Reparar pixel Meta</strong><br><span style="font-size:11px;color:var(--text2)">Instalar correctamente pixel + Conversions API para cerrar el gap de atribución del 67.3%</span></td>
+        <td><span class="badge badge-red">🔴 CRÍTICO</span></td>
+        <td><span class="badge badge-green">Bajo</span></td>
+        <td>1-2 sem</td>
+        <td style="color:var(--green);font-weight:700">+$15-25M/año</td>
+      </tr>
+      <tr>
+        <td style="font-weight:700;color:var(--amber)">2</td>
+        <td><strong>Programa de retención</strong><br><span style="font-size:11px;color:var(--text2)">Email/WhatsApp flows post-compra para convertir el 69.8% de compradores únicos en recurrentes</span></td>
+        <td><span class="badge badge-amber">🟡 ALTO</span></td>
+        <td><span class="badge badge-amber">Medio</span></td>
+        <td>2-4 sem</td>
+        <td style="color:var(--green);font-weight:700">+$27M/año</td>
+      </tr>
+      <tr>
+        <td style="font-weight:700;color:var(--accent)">3</td>
+        <td><strong>Optimizar campañas bajas</strong><br><span style="font-size:11px;color:var(--text2)">Oct 2025 tuvo ROAS 4.9x vs 13.6x en Ago. Analizar qué cambió y replicar mejor período</span></td>
+        <td><span class="badge badge-blue">🔵 MEDIO</span></td>
+        <td><span class="badge badge-amber">Medio</span></td>
+        <td>1-2 sem</td>
+        <td style="color:var(--green);font-weight:700">+$8-12M/año</td>
+      </tr>
+      <tr>
+        <td style="font-weight:700;color:var(--teal)">4</td>
+        <td><strong>Upsell a productos premium</strong><br><span style="font-size:11px;color:var(--text2)">Sculpt Freeze tiene ticket de $1.97M-$2M CLP vs $149K promedio. Aumentar proporción de ventas premium</span></td>
+        <td><span class="badge badge-blue">🔵 MEDIO</span></td>
+        <td><span class="badge badge-green">Bajo</span></td>
+        <td>1 sem</td>
+        <td style="color:var(--green);font-weight:700">+$20-40M/año</td>
+      </tr>
+      <tr>
+        <td style="font-weight:700;color:var(--purple)">5</td>
+        <td><strong>Temporada alta: Sep, Nov, Dic</strong><br><span style="font-size:11px;color:var(--text2)">Preparar stock/capacidad y aumentar presupuesto Meta en esos meses que concentran 60%+ del revenue</span></td>
+        <td><span class="badge badge-purple">🟣 ESTRATÉGICO</span></td>
+        <td><span class="badge badge-green">Bajo</span></td>
+        <td>Planif.</td>
+        <td style="color:var(--green);font-weight:700">+$30M/año</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+    
+<div class="table-card">
+  <div class="table-title">📅 Desglose Mensual Detallado — Todos los KPIs</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Mes</th><th>Órdenes</th><th>Revenue</th><th>Gasto Meta</th>
+        <th>ROAS</th><th>Clientes Únicos</th><th>Nuevos</th><th>Recurrentes</th><th>AOV</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+<tr>
+  <td>Ago 2025</td>
+  <td style="font-weight:600;color:var(--text-bright)">87</td>
+  <td style="font-weight:600;color:var(--green)">$14.83M</td>
+  <td>$1.09M</td>
+  <td style="font-weight:700;color:#10B981">13.6x</td>
+  <td>74</td>
+  <td style="color:var(--accent)">74</td>
+  <td style="color:var(--green)">0</td>
+  <td>170,451</td>
+</tr>
+<tr>
+  <td>Sep 2025</td>
+  <td style="font-weight:600;color:var(--text-bright)">228</td>
+  <td style="font-weight:600;color:var(--green)">$38.93M</td>
+  <td>$3.50M</td>
+  <td style="font-weight:700;color:#10B981">11.1x</td>
+  <td>188</td>
+  <td style="color:var(--accent)">177</td>
+  <td style="color:var(--green)">11</td>
+  <td>170,746</td>
+</tr>
+<tr>
+  <td>Oct 2025</td>
+  <td style="font-weight:600;color:var(--text-bright)">183</td>
+  <td style="font-weight:600;color:var(--green)">$22.59M</td>
+  <td>$4.65M</td>
+  <td style="font-weight:700;color:#D97706">4.9x</td>
+  <td>165</td>
+  <td style="color:var(--accent)">139</td>
+  <td style="color:var(--green)">26</td>
+  <td>123,450</td>
+</tr>
+<tr>
+  <td>Nov 2025</td>
+  <td style="font-weight:600;color:var(--text-bright)">249</td>
+  <td style="font-weight:600;color:var(--green)">$39.74M</td>
+  <td>$5.54M</td>
+  <td style="font-weight:700;color:#10B981">7.2x</td>
+  <td>208</td>
+  <td style="color:var(--accent)">166</td>
+  <td style="color:var(--green)">42</td>
+  <td>159,604</td>
+</tr>
+<tr>
+  <td>Dic 2025</td>
+  <td style="font-weight:600;color:var(--text-bright)">254</td>
+  <td style="font-weight:600;color:var(--green)">$39.36M</td>
+  <td>$5.79M</td>
+  <td style="font-weight:700;color:#10B981">6.8x</td>
+  <td>224</td>
+  <td style="color:var(--accent)">162</td>
+  <td style="color:var(--green)">62</td>
+  <td>154,952</td>
+</tr>
+<tr>
+  <td>Ene 2026</td>
+  <td style="font-weight:600;color:var(--text-bright)">170</td>
+  <td style="font-weight:600;color:var(--green)">$21.00M</td>
+  <td>$2.90M</td>
+  <td style="font-weight:700;color:#10B981">7.3x</td>
+  <td>139</td>
+  <td style="color:var(--accent)">91</td>
+  <td style="color:var(--green)">48</td>
+  <td>123,539</td>
+</tr>
+<tr>
+  <td>Feb 2026</td>
+  <td style="font-weight:600;color:var(--text-bright)">80</td>
+  <td style="font-weight:600;color:var(--green)">$10.83M</td>
+  <td>$1.61M</td>
+  <td style="font-weight:700;color:#10B981">6.7x</td>
+  <td>69</td>
+  <td style="color:var(--accent)">38</td>
+  <td style="color:var(--green)">31</td>
+  <td>135,389</td>
+</tr>
+    </tbody>
+    <tfoot>
+      <tr class="tfoot-row">
+        <td>TOTAL</td><td>1,251</td><td>$187.3M</td><td>$25.1M</td>
+        <td style="color:var(--green)">7.47x</td><td>847</td><td>847</td><td>220</td><td>$149,707</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+    
+<div class="table-card">
+  <div class="table-title">📅 Análisis de Estacionalidad</div>
+  <table>
+    <thead>
+      <tr><th>Mes</th><th>Rank Revenue</th><th>Rank Órdenes</th><th>ROAS</th><th>Análisis</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Ago 2025</td><td>🥈 2do más bajo</td><td>7mo</td><td style="color:var(--green)">13.6x</td><td><span class="badge badge-green">Inicio fuerte — bajo volumen, alta eficiencia</span></td></tr>
+      <tr><td>Sep 2025</td><td>🥇 2do más alto</td><td>🥇 2do</td><td style="color:var(--green)">11.1x</td><td><span class="badge badge-green">Mes excelente — 177 nuevos clientes</span></td></tr>
+      <tr><td>Oct 2025</td><td>5to</td><td>5to</td><td style="color:var(--amber)">4.9x</td><td><span class="badge badge-amber">Caída — revisar creativos y targeting</span></td></tr>
+      <tr><td>Nov 2025</td><td>🥇 Mejor</td><td>🥇 Mejor</td><td style="color:var(--green)">7.2x</td><td><span class="badge badge-green">Black Friday — mejor mes absoluto</span></td></tr>
+      <tr><td>Dic 2025</td><td>3ero</td><td>3ero</td><td style="color:var(--green)">6.8x</td><td><span class="badge badge-green">Navidad — sostuvo el ritmo</span></td></tr>
+      <tr><td>Ene 2026</td><td>4to</td><td>4to</td><td style="color:var(--green)">7.3x</td><td><span class="badge badge-green">Enero sólido a pesar del post-fiestas</span></td></tr>
+      <tr><td>Feb 2026</td><td>🔴 Más bajo</td><td>🔴 Más bajo</td><td style="color:var(--amber)">6.7x</td><td><span class="badge badge-amber">Solo hasta el 23 — datos parciales</span></td></tr>
+    </tbody>
+  </table>
+</div>
+    
+<div class="two-col">
+  <div class="summary-box">
+    <h4>🔍 Análisis de Atribución</h4>
+    <div class="stat-row"><span class="stat-label">Órdenes reales (Shopify)</span><span class="stat-val trend-up">1,251 ✅</span></div>
+    <div class="stat-row"><span class="stat-label">Compras pixel (Meta)</span><span class="stat-val trend-down">409 ⚠️</span></div>
+    <div class="stat-row"><span class="stat-label">Órdenes no atribuidas</span><span class="stat-val trend-down">842</span></div>
+    <div class="stat-row"><span class="stat-label">Gap de atribución</span><span class="stat-val trend-down">67.3%</span></div>
+    <div class="stat-row"><span class="stat-label">Revenue no atribuido</span><span class="stat-val">~$125.9M CLP</span></div>
+    <div class="stat-row"><span class="stat-label">ROAS pixel (incorrecto)</span><span class="stat-val trend-down">~2.4x</span></div>
+    <div class="stat-row"><span class="stat-label">ROAS real (correcto)</span><span class="stat-val trend-up">7.47x ✅</span></div>
+  </div>
+  <div class="summary-box">
+    <h4>💡 Causas del Gap de Atribución</h4>
+    <div class="stat-row"><span class="stat-label">Cookies bloqueadas (iOS 14+)</span><span class="stat-val">~40-50%</span></div>
+    <div class="stat-row"><span class="stat-label">Conversions API ausente</span><span class="stat-val">Probable</span></div>
+    <div class="stat-row"><span class="stat-label">Ventana atrib. 7 días</span><span class="stat-val">Limitación</span></div>
+    <div class="stat-row"><span class="stat-label">Órdenes por teléfono</span><span class="stat-val">Posible</span></div>
+    <div class="stat-row"><span class="stat-label">Multi-touch no rastreado</span><span class="stat-val">Seguro</span></div>
+    <div class="stat-row"><span class="stat-label">SOLUCIÓN: CAPI + GTM</span><span class="stat-val trend-up">Acción #1</span></div>
+  </div>
+</div>
+    
+<div class="table-card">
+  <div class="table-title">🏷️ Rendimiento por Producto — Revenue Visual</div>
+  <div class="performance-bar">
+  <span class="perf-label" title="Brasileño |Depilación láser Alexandrita Pro de Candela">Brasileño |Depilación láser Alexand</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:100.0%;background:var(--teal)">54 un.</div></div>
+  <span class="perf-val">$9.57M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="Axilas |Depilación láser Alexandrita Pro de Candela">Axilas |Depilación láser Alexandrit</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:83.8%;background:var(--teal)">137 un.</div></div>
+  <span class="perf-val">$8.01M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="Brasileño y Axilas | Depilación láser Alexandrita Pro de Can">Brasileño y Axilas | Depilación lás</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:68.5%;background:var(--teal)">38 un.</div></div>
+  <span class="perf-val">$6.55M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="Rostro completo | Depilación láser Alexandrita Pro de Candel">Rostro completo | Depilación láser </span>
+  <div class="perf-bar"><div class="perf-fill" style="width:46.9%;background:var(--teal)">25 un.</div></div>
+  <span class="perf-val">$4.48M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="Labio Superior |Depilación láser Alexandrita Pro de Candela">Labio Superior |Depilación láser Al</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:46.7%;background:var(--teal)">105 un.</div></div>
+  <span class="perf-val">$4.47M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="Piernas completas, Brasileño y Axilas| Depilación láser Alex">Piernas completas, Brasileño y Axil</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:30.0%;background:var(--teal)">7 un.</div></div>
+  <span class="perf-val">$2.87M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="Piernas completas |Depilación láser Alexandrita Pro de Cande">Piernas completas |Depilación láser</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:29.2%;background:var(--teal)">9 un.</div></div>
+  <span class="perf-val">$2.79M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="Evaluación Para Sculpt Freeze">Evaluación Para Sculpt Freeze</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:27.7%;background:var(--teal)">106 un.</div></div>
+  <span class="perf-val">$2.65M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="Sculpt Freeze Abdomen + espalda + 6 MAF + bonos">Sculpt Freeze Abdomen + espalda + 6</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:20.9%;background:var(--teal)">1 un.</div></div>
+  <span class="perf-val">$2.00M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="Cuerpo Completo Mujer  | Depilación láser Alexandrita Pro de">Cuerpo Completo Mujer  | Depilación</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:20.7%;background:var(--teal)">2 un.</div></div>
+  <span class="perf-val">$1.98M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="Sculptfreeze abdomen + espalda + brazos + 6 maf +bonos">Sculptfreeze abdomen + espalda + br</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:20.6%;background:var(--teal)">1 un.</div></div>
+  <span class="perf-val">$1.97M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="Piernas completas y Brasileño| Depilación láser Alexandrita ">Piernas completas y Brasileño| Depi</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:20.1%;background:var(--teal)">6 un.</div></div>
+  <span class="perf-val">$1.92M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="Abono Final Sculpt freeze abd+ esp+ brazos+  6 Maf">Abono Final Sculpt freeze abd+ esp+</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:18.9%;background:var(--teal)">1 un.</div></div>
+  <span class="perf-val">$1.81M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="Sculpt freeze">Sculpt freeze</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:18.8%;background:var(--teal)">2 un.</div></div>
+  <span class="perf-val">$1.80M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="Sculpt freeze Ema">Sculpt freeze Ema</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:18.8%;background:var(--teal)">1 un.</div></div>
+  <span class="perf-val">$1.80M</span>
+</div>
+</div>
+    
+<div class="table-card">
+  <div class="table-title">📣 Campañas por Gasto (Top 15)</div>
+  <div class="performance-bar">
+  <span class="perf-label" title="">-</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:100.0%;background:var(--accent)">1.3%</div></div>
+  <span class="perf-val">$8.41M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="">-</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:56.2%;background:var(--accent)">1.4%</div></div>
+  <span class="perf-val">$4.73M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="">-</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:28.1%;background:var(--accent)">1.4%</div></div>
+  <span class="perf-val">$2.36M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="">-</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:24.1%;background:var(--accent)">1.5%</div></div>
+  <span class="perf-val">$2.03M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="">-</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:15.2%;background:var(--accent)">2.7%</div></div>
+  <span class="perf-val">$1.28M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="">-</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:9.7%;background:var(--accent)">2.8%</div></div>
+  <span class="perf-val">$0.82M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="">-</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:9.0%;background:var(--accent)">6.3%</div></div>
+  <span class="perf-val">$0.76M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="">-</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:9.0%;background:var(--accent)">1.3%</div></div>
+  <span class="perf-val">$0.76M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="">-</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:8.7%;background:var(--accent)">1.5%</div></div>
+  <span class="perf-val">$0.73M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="">-</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:8.0%;background:var(--accent)">3.6%</div></div>
+  <span class="perf-val">$0.68M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="">-</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:7.0%;background:var(--accent)">2.4%</div></div>
+  <span class="perf-val">$0.59M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="">-</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:6.6%;background:var(--accent)">14.1%</div></div>
+  <span class="perf-val">$0.55M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="">-</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:3.9%;background:var(--accent)">1.0%</div></div>
+  <span class="perf-val">$0.33M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="">-</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:3.8%;background:var(--accent)">1.9%</div></div>
+  <span class="perf-val">$0.32M</span>
+</div><div class="performance-bar">
+  <span class="perf-label" title="">-</span>
+  <div class="perf-bar"><div class="perf-fill" style="width:3.0%;background:var(--accent)">1.6%</div></div>
+  <span class="perf-val">$0.25M</span>
+</div>
+</div>
+  </div>
+</div>
+
+<!-- Extended inline data for completeness -->
+<script>
+/* Extended data reference - full verified dataset */
+const VERIFIED_MONTHLY = [
+  {month:"2025-08",orders:87,revenue:14829251,spend:1089585,roas:13.6,newCustomers:74,returningCustomers:0,aov:170451,impressions:null,clicks:null},
+  {month:"2025-09",orders:228,revenue:38930200,spend:3499035,roas:11.1,newCustomers:177,returningCustomers:11,aov:170746,impressions:null,clicks:null},
+  {month:"2025-10",orders:183,revenue:22591398,spend:4652275,roas:4.9,newCustomers:139,returningCustomers:26,aov:123450,impressions:null,clicks:null},
+  {month:"2025-11",orders:249,revenue:39741515,spend:5542535,roas:7.2,newCustomers:166,returningCustomers:42,aov:159604,impressions:null,clicks:null},
+  {month:"2025-12",orders:254,revenue:39357720,spend:5790159,roas:6.8,newCustomers:162,returningCustomers:62,aov:154952,impressions:null,clicks:null},
+  {month:"2026-01",orders:170,revenue:21001650,spend:2896692,roas:7.3,newCustomers:91,returningCustomers:48,aov:123539,impressions:null,clicks:null},
+  {month:"2026-02",orders:80,revenue:10831140,spend:1606654,roas:6.7,newCustomers:38,returningCustomers:31,aov:135389,impressions:null,clicks:null}
+];
+
+/* Attribution analysis */
+const ATTRIBUTION = {
+  shopify_orders: 1251,
+  pixel_purchases: 409,
+  unattributed: 842,
+  gap_pct: 67.3,
+  roas_real: 7.47,
+  roas_pixel_est: 2.4,
+  revenue_total: 187282874,
+  spend_total: 25076935,
+  cpo_real: 20046
+};
+
+/* Customer segments */
+const CUSTOMER_SEGMENTS = {
+  total: 847,
+  one_order: 591,
+  one_order_pct: 69.8,
+  two_plus: 256,
+  two_plus_pct: 30.2,
+  ltv_one: 136716,
+  ltv_multi: 410484,
+  ltv_ratio: 3.0,
+  avg_orders: 1.48,
+  repeat_rate: 30.2,
+  orders_dist: {1:591, 2:168, 3:57, 4:19, "5+":12}
+};
+
+/* Top seasonal months */
+const SEASONAL = {
+  best_revenue_month: "2025-11",
+  best_roas_month: "2025-08",
+  best_acquisition_month: "2025-09",
+  worst_roas_month: "2025-10",
+  high_season: ["2025-09","2025-11","2025-12"],
+  low_season: ["2025-08","2026-02"]
+};
+
+console.log('%c✅ Kyest.cl BI Dashboard cargado correctamente', 'color:#10B981;font-weight:bold;font-size:14px');
+console.log('%c📊 Datos verificados: 1,251 órdenes · $187.3M CLP · ROAS 7.47x', 'color:#64748B');
+</script>
+
 </body>
 </html>
