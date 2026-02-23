@@ -1,684 +1,864 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Kyest.cl BI Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kyest.cl — Business Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  :root{
-    --bg:#0f0f1a;
-    --card:#1a1a2e;
-    --card2:#16213e;
-    --accent:#7c3aed;
-    --accent2:#9f67ff;
-    --accent3:#5b21b6;
-    --text:#e2e8f0;
-    --text2:#94a3b8;
-    --green:#22c55e;
-    --red:#ef4444;
-    --orange:#f97316;
-    --blue:#3b82f6;
-    --yellow:#eab308;
-    --border:#2d2d4e;
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a14;
+    --card: #13131f;
+    --card2: #1a1a2e;
+    --purple: #7c3aed;
+    --purple-l: #a78bfa;
+    --green: #10b981;
+    --red: #ef4444;
+    --orange: #f97316;
+    --blue: #3b82f6;
+    --yellow: #eab308;
+    --pink: #ec4899;
+    --teal: #14b8a6;
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --border: #1e1e35;
   }
-  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
-  
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
   /* HEADER */
-  .header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0d0d1a 100%);border-bottom:1px solid var(--border);padding:1.2rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
-  .header-logo{display:flex;align-items:center;gap:1rem}
-  .logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 0 20px rgba(124,58,237,0.5)}
-  .logo-text h1{font-size:1.3rem;font-weight:700;background:linear-gradient(90deg,#c4b5fd,#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .logo-text p{font-size:0.72rem;color:var(--text2);margin-top:1px}
-  .header-right{display:flex;align-items:center;gap:1.5rem}
-  .live-badge{display:flex;align-items:center;gap:0.5rem;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);padding:0.3rem 0.8rem;border-radius:999px;font-size:0.75rem;color:var(--green)}
-  .live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
-  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
-  .updated{font-size:0.72rem;color:var(--text2)}
+  .header { display: flex; align-items: center; justify-content: space-between; padding: 24px 32px; background: var(--card); border-bottom: 1px solid var(--border); border-radius: 16px; margin-bottom: 24px; gap: 16px; flex-wrap: wrap; }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .logo { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #7c3aed, #a78bfa); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; color: white; flex-shrink: 0; }
+  .header-title { font-size: 22px; font-weight: 800; color: var(--text); }
+  .header-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.6;transform:scale(1.3);} }
+  .live-label { font-size: 13px; color: var(--green); font-weight: 600; }
+  .update-label { font-size: 12px; color: var(--text2); }
 
   /* ALERT BANNER */
-  .alert-banner{background:linear-gradient(90deg,rgba(239,68,68,0.18),rgba(239,68,68,0.08));border:1px solid rgba(239,68,68,0.4);border-radius:10px;padding:0.9rem 1.4rem;display:flex;align-items:center;gap:0.8rem;font-size:0.85rem;margin:1.5rem 2rem 0}
-  .alert-banner .alert-icon{font-size:1.3rem;flex-shrink:0}
-  .alert-banner strong{color:#fca5a5}
-  .alert-banner span{color:#fca5a5}
+  .pixel-alert { background: linear-gradient(135deg, #7f1d1d, #991b1b); border: 1px solid #ef4444; border-radius: 12px; padding: 16px 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+  .pixel-alert-icon { font-size: 22px; }
+  .pixel-alert-text { font-size: 14px; font-weight: 600; color: #fca5a5; }
 
-  /* MAIN */
-  main{padding:1.5rem 2rem 3rem}
+  /* DATE TABS */
+  .date-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+  .tab-btn { padding: 10px 24px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text2); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; }
+  .tab-btn:hover { border-color: var(--purple-l); color: var(--text); }
+  .tab-btn.active { background: var(--purple); border-color: var(--purple); color: white; }
 
-  /* DATE RANGE */
-  .range-row{display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem}
-  .range-label{font-size:0.8rem;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:0.05em}
-  .range-btn{background:var(--card2);border:1px solid var(--border);color:var(--text2);padding:0.45rem 1.1rem;border-radius:8px;cursor:pointer;font-size:0.83rem;font-weight:500;transition:all 0.2s}
-  .range-btn:hover{border-color:var(--accent);color:var(--accent)}
-  .range-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 15px rgba(124,58,237,0.4)}
+  /* SECTION HEADERS */
+  .section-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 16px; padding-left: 14px; border-left: 4px solid var(--purple); display: flex; align-items: center; gap: 8px; }
 
-  /* SECTION TITLE */
-  .section-title{font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--text2);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
-  .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+  /* CARDS GRID */
+  .kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 24px; }
+  @media(max-width:1200px){ .kpi-grid{grid-template-columns:repeat(3,1fr);} }
+  @media(max-width:768px){ .kpi-grid{grid-template-columns:repeat(2,1fr);} }
+  .kpi-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; transition: transform .2s, box-shadow .2s; cursor: default; }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(124,58,237,.15); border-color: var(--purple); }
+  .kpi-icon { font-size: 22px; margin-bottom: 10px; }
+  .kpi-value { font-size: 26px; font-weight: 800; color: var(--text); line-height: 1.1; }
+  .kpi-label { font-size: 12px; color: var(--text2); margin-top: 6px; font-weight: 500; }
+  .kpi-trend { font-size: 12px; margin-top: 8px; font-weight: 600; }
+  .trend-up { color: var(--green); }
+  .trend-down { color: var(--red); }
+  .trend-neutral { color: var(--text2); }
 
-  /* KPI CARDS */
-  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem}
-  .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.3rem 1.4rem;transition:all 0.25s;position:relative;overflow:hidden}
-  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-  .kpi-card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(124,58,237,0.25);border-color:var(--accent)}
-  .kpi-label{font-size:0.73rem;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.6rem}
-  .kpi-value{font-size:1.6rem;font-weight:700;line-height:1.1;background:linear-gradient(90deg,#fff,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .kpi-sub{font-size:0.72rem;color:var(--text2);margin-top:0.4rem}
-  .kpi-icon{position:absolute;bottom:0.8rem;right:1rem;font-size:1.6rem;opacity:0.15}
+  /* CHARTS ROW */
+  .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+  @media(max-width:900px){ .charts-row{grid-template-columns:1fr;} }
+  .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+  .chart-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
 
-  /* CHART SECTION */
-  .charts-row{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:2rem}
-  .chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.4rem}
-  .chart-card h3{font-size:0.85rem;font-weight:600;color:var(--text2);margin-bottom:1rem;text-transform:uppercase;letter-spacing:0.05em}
-  .chart-wrapper{position:relative;height:280px}
-
-  /* GA4 STATS */
-  .ga4-stats{display:flex;flex-direction:column;gap:1rem;height:100%}
-  .ga4-stat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem;flex:1;display:flex;align-items:center;gap:1rem}
-  .ga4-stat-icon{font-size:1.5rem;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:rgba(124,58,237,0.15);border-radius:10px}
-  .ga4-stat-info{}
-  .ga4-stat-label{font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em}
-  .ga4-stat-value{font-size:1.35rem;font-weight:700;color:#fff}
+  /* META SECTION */
+  .meta-summary { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+  @media(max-width:768px){ .meta-summary{grid-template-columns:repeat(2,1fr);} }
+  .mini-card { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+  .mini-card-value { font-size: 22px; font-weight: 800; color: var(--purple-l); }
+  .mini-card-label { font-size: 12px; color: var(--text2); margin-top: 4px; }
 
   /* TABLES */
-  .table-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.4rem;margin-bottom:2rem;overflow:hidden}
-  .table-card h3{font-size:0.85rem;font-weight:600;color:var(--text2);margin-bottom:1.2rem;text-transform:uppercase;letter-spacing:0.05em}
-  table{width:100%;border-collapse:collapse;font-size:0.83rem}
-  th{text-align:left;padding:0.6rem 0.9rem;color:var(--text2);font-weight:500;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.03)}
-  td{padding:0.75rem 0.9rem;border-bottom:1px solid rgba(45,45,78,0.5);color:var(--text);vertical-align:middle}
-  tr:last-child td{border-bottom:none}
-  tr:hover td{background:rgba(124,58,237,0.07)}
-  .badge{display:inline-flex;align-items:center;padding:0.22rem 0.65rem;border-radius:999px;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em}
-  .badge-green{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
-  .badge-gray{background:rgba(148,163,184,0.12);color:var(--text2);border:1px solid rgba(148,163,184,0.2)}
-  .badge-purple{background:rgba(124,58,237,0.18);color:#c4b5fd;border:1px solid rgba(124,58,237,0.3)}
-  .badge-blue{background:rgba(59,130,246,0.15);color:#93c5fd;border:1px solid rgba(59,130,246,0.3)}
-  .badge-orange{background:rgba(249,115,22,0.15);color:#fdba74;border:1px solid rgba(249,115,22,0.3)}
-  .badge-yellow{background:rgba(234,179,8,0.15);color:#fde047;border:1px solid rgba(234,179,8,0.3)}
+  .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; min-width: 700px; }
+  thead tr { background: var(--card2); }
+  thead th { padding: 12px 14px; text-align: left; font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; position: sticky; top: 0; z-index: 1; background: var(--card2); }
+  tbody tr { border-top: 1px solid var(--border); transition: background .15s; }
+  tbody tr:hover { background: rgba(124,58,237,.07); }
+  tbody td { padding: 11px 14px; font-size: 13px; color: var(--text); white-space: nowrap; }
+  .td-num { text-align: right; font-variant-numeric: tabular-nums; }
 
-  /* PROGRESS BAR */
-  .prog-bar-bg{background:rgba(255,255,255,0.05);border-radius:999px;height:5px;min-width:80px;margin-top:4px}
-  .prog-bar-fill{height:5px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  /* BADGES */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: .03em; }
+  .badge-purple { background: rgba(124,58,237,.2); color: #a78bfa; border: 1px solid rgba(124,58,237,.3); }
+  .badge-blue { background: rgba(59,130,246,.2); color: #93c5fd; border: 1px solid rgba(59,130,246,.3); }
+  .badge-orange { background: rgba(249,115,22,.2); color: #fdba74; border: 1px solid rgba(249,115,22,.3); }
+  .badge-teal { background: rgba(20,184,166,.2); color: #5eead4; border: 1px solid rgba(20,184,166,.3); }
+  .badge-green { background: rgba(16,185,129,.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,.3); }
+  .badge-gray { background: rgba(148,163,184,.1); color: var(--text2); border: 1px solid var(--border); }
+  .badge-red { background: rgba(239,68,68,.15); color: #fca5a5; border: 1px solid rgba(239,68,68,.3); }
+  .badge-yellow { background: rgba(234,179,8,.15); color: #fde047; border: 1px solid rgba(234,179,8,.3); }
+  .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
+  .dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .dot-gray { background: #64748b; }
 
   /* ADS GRID */
-  .ads-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin-bottom:2rem}
-  .ad-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all 0.25s;position:relative}
-  .ad-card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(124,58,237,0.2);border-color:var(--accent)}
-  .ad-thumb{width:100%;height:140px;object-fit:cover;background:#111;display:block}
-  .ad-thumb-placeholder{width:100%;height:140px;background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--text2)}
-  .ad-body{padding:1rem}
-  .ad-name{font-size:0.8rem;font-weight:600;color:var(--text);margin-bottom:0.7rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .ad-metrics{display:flex;flex-wrap:wrap;gap:0.5rem}
-  .ad-metric{font-size:0.72rem;background:rgba(255,255,255,0.06);border-radius:6px;padding:0.25rem 0.6rem;color:var(--text2)}
-  .ad-metric span{font-weight:700;color:var(--text)}
-  .top-badge{position:absolute;top:0.6rem;left:0.6rem;background:linear-gradient(135deg,#eab308,#f97316);color:#000;font-size:0.68rem;font-weight:700;padding:0.25rem 0.6rem;border-radius:999px}
+  .ads-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  @media(max-width:1100px){ .ads-grid{grid-template-columns:repeat(3,1fr);} }
+  @media(max-width:768px){ .ads-grid{grid-template-columns:repeat(2,1fr);} }
+  .ad-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: transform .2s, box-shadow .2s; position: relative; }
+  .ad-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,.4); border-color: var(--purple); }
+  .ad-thumb { width: 100%; height: 110px; object-fit: cover; background: var(--card2); display: block; }
+  .ad-thumb-placeholder { width: 100%; height: 110px; background: var(--card2); display: flex; align-items: center; justify-content: center; font-size: 28px; color: var(--text2); }
+  .ad-body { padding: 12px; }
+  .ad-name { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.4; height: 34px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .ad-ctr { margin: 10px 0 8px; }
+  .ad-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chip { font-size: 11px; padding: 2px 8px; border-radius: 6px; background: var(--card2); color: var(--text2); border: 1px solid var(--border); font-weight: 500; }
+  .crown-badge { position: absolute; top: 8px; right: 8px; background: linear-gradient(135deg,#ca8a04,#eab308); border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 13px; box-shadow: 0 2px 8px rgba(234,179,8,.4); }
 
-  /* OBJ SUMMARY */
-  .obj-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
-  .obj-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;text-align:center}
-  .obj-card h4{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text2);margin-bottom:0.5rem}
-  .obj-card .obj-spend{font-size:1.3rem;font-weight:700;color:#fff}
-  .obj-card .obj-sub{font-size:0.72rem;color:var(--text2);margin-top:0.3rem}
+  /* COLLAPSIBLE */
+  .collapsible-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 0; margin-bottom: 8px; }
+  .collapsible-toggle { font-size: 13px; color: var(--purple-l); font-weight: 600; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .collapsible-content { display: none; }
+  .collapsible-content.open { display: block; }
+  .chevron { display: inline-block; transition: transform .3s; }
+  .chevron.open { transform: rotate(180deg); }
 
-  /* FOOTER */
-  footer{background:var(--card);border-top:1px solid var(--border);text-align:center;padding:1rem;font-size:0.75rem;color:var(--text2)}
+  /* PROGRESS BAR */
+  .progress-bar { height: 6px; border-radius: 3px; background: var(--card2); overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--purple), var(--purple-l)); transition: width .5s; }
 
-  @media(max-width:768px){
-    .header{padding:1rem;flex-wrap:wrap;gap:0.8rem}
-    main{padding:1rem}
-    .charts-row{grid-template-columns:1fr}
-    .obj-summary{grid-template-columns:1fr}
-    .alert-banner{margin:1rem}
-  }
+  /* SESSIONS BAR */
+  .session-bar { display: flex; align-items: center; gap: 8px; }
+  .session-bar-bg { flex: 1; height: 5px; background: var(--card2); border-radius: 3px; overflow: hidden; }
+  .session-bar-fill { height: 100%; border-radius: 3px; }
+
+  /* CHANNEL BADGES */
+  .ch-paid-social { background: rgba(124,58,237,.2); color: #a78bfa; }
+  .ch-organic-search { background: rgba(16,185,129,.2); color: #6ee7b7; }
+  .ch-direct { background: rgba(59,130,246,.2); color: #93c5fd; }
+  .ch-organic-social { background: rgba(249,115,22,.2); color: #fdba74; }
+  .ch-paid-other { background: rgba(234,179,8,.15); color: #fde047; }
+  .ch-referral { background: rgba(236,72,153,.15); color: #f9a8d4; }
+  .ch-other { background: rgba(148,163,184,.1); color: #94a3b8; }
+
+  /* INSIGHTS */
+  .insights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .insight-card { background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 20px; display: flex; gap: 14px; align-items: flex-start; transition: transform .2s; }
+  .insight-card:hover { transform: translateY(-2px); border-color: var(--purple); }
+  .insight-icon { font-size: 28px; flex-shrink: 0; }
+  .insight-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .insight-body { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .insight-value { font-size: 18px; font-weight: 800; color: var(--purple-l); margin-bottom: 4px; }
+
+  /* TOTALS ROW */
+  .totals-row td { font-weight: 700; color: var(--purple-l); background: rgba(124,58,237,.05); border-top: 2px solid var(--purple) !important; }
+
+  /* SECTION WRAP */
+  .section { margin-bottom: 32px; }
+
+  /* SCROLLABLE TABLE */
+  .table-scroll { max-height: 420px; overflow-y: auto; }
+  .table-scroll::-webkit-scrollbar { width: 4px; }
+  .table-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* COMBO CHART */
+  .shopify-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  @media(max-width:900px){ .shopify-charts{grid-template-columns:1fr;} }
 </style>
 </head>
 <body>
+<div class="container">
 
 <!-- HEADER -->
-<header class="header">
-  <div class="header-logo">
-    <div class="logo-icon">✨</div>
-    <div class="logo-text">
-      <h1>Kyest.cl BI Dashboard</h1>
-      <p>Performance & Revenue Analytics</p>
+<div class="header">
+  <div class="header-left">
+    <div class="logo">K</div>
+    <div>
+      <div class="header-title">Kyest.cl — Business Intelligence</div>
+      <div class="header-sub">Powered by Shopify · Meta Ads · Google Analytics</div>
     </div>
   </div>
-  <div class="header-right">
-    <div class="live-badge"><span class="live-dot"></span> En vivo</div>
-    <div class="updated">Actualizado: 23 Feb 2026, 15:43</div>
-  </div>
-</header>
-
-<!-- PIXEL ALERT -->
-<div class="alert-banner">
-  <div class="alert-icon">⚠️</div>
-  <div>
-    <strong>Pixel Meta desconfigurado</strong>
-    <span> — ROAS Meta reportado: <strong>0.76x</strong> vs ROAS Real (Shopify): <strong>11.31x</strong>. Las compras no se están registrando correctamente en Meta Ads. Se recomienda auditar el Pixel y la API de Conversiones.</span>
+  <div class="header-right" style="flex-direction:column;align-items:flex-end;gap:4px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="live-dot"></div>
+      <span class="live-label">● En vivo</span>
+    </div>
+    <div class="update-label" id="update-label"></div>
   </div>
 </div>
 
-<main>
-  <!-- DATE RANGE -->
-  <div class="range-row" style="margin-top:1.5rem">
-    <span class="range-label">📅 Período:</span>
-    <button class="range-btn active" onclick="setRange(7)" id="btn7">7 días</button>
-    <button class="range-btn" onclick="setRange(30)" id="btn30">30 días</button>
-  </div>
+<!-- PIXEL ALERT (conditional) -->
+<div class="pixel-alert" id="pixel-alert" style="display:none;">
+  <div class="pixel-alert-icon">⚠️</div>
+  <div class="pixel-alert-text" id="pixel-alert-text"></div>
+</div>
 
-  <!-- KPI CARDS -->
-  <div class="section-title">📊 Indicadores Clave</div>
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-label">Revenue / Día</div>
-      <div class="kpi-value" id="kpi-rev-day">$644.176</div>
-      <div class="kpi-sub" id="kpi-rev-total">Total 7d: $4.509.231</div>
-      <div class="kpi-icon">💰</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Gasto Ads / Día</div>
-      <div class="kpi-value" id="kpi-spend-day">$74.633</div>
-      <div class="kpi-sub" id="kpi-spend-total">Total 7d: $522.434</div>
-      <div class="kpi-icon">📣</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">ROAS Real</div>
-      <div class="kpi-value" id="kpi-roas">8.63x</div>
-      <div class="kpi-sub">Revenue Shopify / Gasto Meta</div>
-      <div class="kpi-icon">🎯</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Net / Día</div>
-      <div class="kpi-value" id="kpi-net-day">$569.543</div>
-      <div class="kpi-sub">Revenue − Gasto Ads</div>
-      <div class="kpi-icon">📈</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Órdenes / Día</div>
-      <div class="kpi-value" id="kpi-orders">4.4</div>
-      <div class="kpi-sub" id="kpi-orders-total">Total 7d: 31 órdenes</div>
-      <div class="kpi-icon">🛒</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Sesiones GA4 / Día</div>
-      <div class="kpi-value">194</div>
-      <div class="kpi-sub">Total 30d: 5.820 sesiones</div>
-      <div class="kpi-icon">👁️</div>
-    </div>
-  </div>
+<!-- DATE TABS -->
+<div class="date-tabs">
+  <button class="tab-btn" onclick="setTab('7')" id="tab7">7 días</button>
+  <button class="tab-btn active" onclick="setTab('30')" id="tab30">30 días</button>
+  <button class="tab-btn" onclick="setTab('90')" id="tab90">90 días</button>
+</div>
 
-  <!-- CHARTS -->
-  <div class="section-title">📉 Revenue vs Inversión Publicitaria</div>
+<!-- KPI ROW -->
+<div class="section">
+  <div class="section-title">📊 KPIs Ejecutivos</div>
+  <div class="kpi-grid" id="kpi-grid"></div>
+</div>
+
+<!-- CHARTS ROW -->
+<div class="section">
   <div class="charts-row">
     <div class="chart-card">
-      <h3>Revenue Diario vs Gasto Promedio en Ads</h3>
-      <div class="chart-wrapper">
-        <canvas id="revenueChart"></canvas>
-      </div>
+      <div class="chart-title">📈 Revenue Diario — Últimos 30 días</div>
+      <canvas id="dailyRevenueChart" height="120"></canvas>
     </div>
     <div class="chart-card">
-      <h3>Tráfico GA4 — Últimos 30 días</h3>
-      <div class="ga4-stats" style="margin-top:0.5rem">
-        <div class="ga4-stat">
-          <div class="ga4-stat-icon">🖥️</div>
-          <div class="ga4-stat-info">
-            <div class="ga4-stat-label">Sesiones</div>
-            <div class="ga4-stat-value">5.820</div>
-          </div>
-        </div>
-        <div class="ga4-stat">
-          <div class="ga4-stat-icon">👤</div>
-          <div class="ga4-stat-info">
-            <div class="ga4-stat-label">Usuarios</div>
-            <div class="ga4-stat-value">4.210</div>
-          </div>
-        </div>
-        <div class="ga4-stat">
-          <div class="ga4-stat-icon">✅</div>
-          <div class="ga4-stat-info">
-            <div class="ga4-stat-label">Conversiones</div>
-            <div class="ga4-stat-value">87</div>
-          </div>
-        </div>
-        <div class="ga4-stat">
-          <div class="ga4-stat-icon">⚡</div>
-          <div class="ga4-stat-info">
-            <div class="ga4-stat-label">Sesiones / Día</div>
-            <div class="ga4-stat-value">194</div>
-          </div>
-        </div>
-      </div>
+      <div class="chart-title">🌐 Tráfico por Canal (GA4 · 90 días)</div>
+      <canvas id="channelDonut" height="220"></canvas>
     </div>
   </div>
+</div>
 
-  <!-- META OBJ SUMMARY -->
-  <div class="section-title">📣 Meta Ads — Resumen por Objetivo</div>
-  <div class="obj-summary">
-    <div class="obj-card">
-      <h4><span class="badge badge-purple" style="margin-bottom:6px">SALES</span></h4>
-      <div class="obj-spend">$235.991</div>
-      <div class="obj-sub">2.097 clicks · 7 compras · CTR prom 1.8%</div>
-    </div>
-    <div class="obj-card">
-      <h4><span class="badge badge-blue" style="margin-bottom:6px">LEADS</span></h4>
-      <div class="obj-spend">$1.442.766</div>
-      <div class="obj-sub">10.434 clicks · 5 compras · CTR prom 1.5%</div>
-    </div>
-    <div class="obj-card">
-      <h4><span class="badge badge-orange" style="margin-bottom:6px">ENGAGEMENT</span></h4>
-      <div class="obj-spend">$17.838</div>
-      <div class="obj-sub">193 clicks · 0 compras · CTR prom 1.56%</div>
-    </div>
-  </div>
+<!-- META ADS -->
+<div class="section">
+  <div class="section-title">📡 Meta Ads — Performance Detallado</div>
+  <div class="meta-summary" id="meta-summary"></div>
 
-  <!-- CAMPAIGNS TABLE -->
-  <div class="section-title">🗂️ Campañas Meta Ads</div>
-  <div class="table-card">
-    <h3>Detalle de Campañas — Ordenadas por Inversión</h3>
-    <div style="overflow-x:auto">
-    <table>
+  <div style="margin-bottom:12px;font-size:14px;font-weight:600;color:var(--text2);">Campañas</div>
+  <div class="table-wrap">
+    <table id="campaigns-table">
       <thead>
         <tr>
-          <th>Nombre</th>
+          <th>Campaña</th>
           <th>Objetivo</th>
           <th>Estado</th>
-          <th>Inversión (CLP)</th>
-          <th>Clicks</th>
-          <th>CTR</th>
-          <th>CPC</th>
-          <th>ROAS</th>
+          <th class="td-num">Gasto</th>
+          <th class="td-num">Impresiones</th>
+          <th class="td-num">Clicks</th>
+          <th class="td-num">CTR</th>
+          <th class="td-num">CPC</th>
+          <th class="td-num">CPM</th>
+          <th class="td-num">Compras</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td style="max-width:260px;font-size:0.78rem">Sculpt Freeze | LL 1% | 22.01</td>
-          <td><span class="badge badge-blue">LEADS</span></td>
-          <td><span class="badge badge-green">ACTIVE</span></td>
-          <td>$779.036</td>
-          <td>3.585</td>
-          <td>2.76%</td>
-          <td>$217</td>
-          <td><span style="color:#f97316">0.06x</span></td>
-        </tr>
-        <tr>
-          <td style="max-width:260px;font-size:0.78rem">AON - WSP - Lead - Depilación Laser | 13.01</td>
-          <td><span class="badge badge-blue">LEADS</span></td>
-          <td><span class="badge badge-green">ACTIVE</span></td>
-          <td>$661.333</td>
-          <td>6.834</td>
-          <td>1.21%</td>
-          <td>$97</td>
-          <td><span style="color:#eab308">0.79x</span></td>
-        </tr>
-        <tr>
-          <td style="max-width:260px;font-size:0.78rem">AON - WEB - Ventas - Depilación Láser audience | 25.01</td>
-          <td><span class="badge badge-purple">SALES</span></td>
-          <td><span class="badge badge-gray">PAUSED</span></td>
-          <td>$142.924</td>
-          <td>1.038</td>
-          <td>1.83%</td>
-          <td>$138</td>
-          <td><span style="color:#eab308">1.31x</span></td>
-        </tr>
-        <tr>
-          <td style="max-width:260px;font-size:0.78rem">New | AON - WEB - Ventas - Depilación Láser | 10.02</td>
-          <td><span class="badge badge-purple">SALES</span></td>
-          <td><span class="badge badge-green">ACTIVE</span></td>
-          <td>$85.191</td>
-          <td>1.009</td>
-          <td>2.20%</td>
-          <td>$84</td>
-          <td><span style="color:var(--green)">5.75x</span></td>
-        </tr>
-        <tr>
-          <td style="max-width:260px;font-size:0.78rem">AON - WSP - ENG - Depilación Laser | 24.01</td>
-          <td><span class="badge badge-orange">ENGAGEMENT</span></td>
-          <td><span class="badge badge-gray">PAUSED</span></td>
-          <td>$17.838</td>
-          <td>193</td>
-          <td>1.56%</td>
-          <td>$92</td>
-          <td><span style="color:var(--text2)">—</span></td>
-        </tr>
-        <tr>
-          <td style="max-width:260px;font-size:0.78rem">AON - WEB - Ventas - Depilación Láser | 21.01</td>
-          <td><span class="badge badge-purple">SALES</span></td>
-          <td><span class="badge badge-gray">PAUSED</span></td>
-          <td>$7.888</td>
-          <td>50</td>
-          <td>1.38%</td>
-          <td>$158</td>
-          <td><span style="color:var(--green)">41.11x ⭐</span></td>
-        </tr>
-        <tr>
-          <td style="max-width:260px;font-size:0.78rem">AON RMKT - WSP - Lead - Depilación Laser | 13.01</td>
-          <td><span class="badge badge-blue">LEADS</span></td>
-          <td><span class="badge badge-gray">PAUSED</span></td>
-          <td>$2.397</td>
-          <td>15</td>
-          <td>1.16%</td>
-          <td>$160</td>
-          <td><span style="color:var(--text2)">—</span></td>
-        </tr>
-      </tbody>
+      <tbody id="campaigns-tbody"></tbody>
     </table>
+  </div>
+
+  <!-- AD SETS COLLAPSIBLE -->
+  <div class="collapsible-header" onclick="toggleAdsets()">
+    <div style="font-size:14px;font-weight:600;color:var(--text2);">Ad Sets (Top 10)</div>
+    <button class="collapsible-toggle">
+      <span id="adsets-label">Mostrar</span>
+      <span class="chevron" id="adsets-chevron">▼</span>
+    </button>
+  </div>
+  <div class="collapsible-content" id="adsets-content">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ad Set</th>
+            <th>Estado</th>
+            <th class="td-num">Gasto</th>
+            <th class="td-num">Impresiones</th>
+            <th class="td-num">Clicks</th>
+            <th class="td-num">CTR</th>
+            <th class="td-num">CPC</th>
+            <th class="td-num">CPM</th>
+          </tr>
+        </thead>
+        <tbody id="adsets-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TOP ADS -->
+<div class="section">
+  <div class="section-title">🏆 Top Ads Performance</div>
+  <div class="ads-grid" id="ads-grid"></div>
+</div>
+
+<!-- SHOPIFY ANALYSIS -->
+<div class="section">
+  <div class="section-title">🛒 Shopify — Análisis Completo</div>
+  <div class="shopify-charts">
+    <div class="chart-card">
+      <div class="chart-title">📅 Revenue Mensual + Órdenes</div>
+      <canvas id="monthlyChart" height="150"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">👥 Clientes Nuevos por Mes</div>
+      <canvas id="newCustomersChart" height="150"></canvas>
     </div>
   </div>
 
-  <!-- TOP ADS -->
-  <div class="section-title">🎨 Top Ads — Rendimiento por CTR</div>
-  <div class="ads-grid">
-
-    <div class="ad-card">
-      <div class="top-badge">🏆 Mejor CTR</div>
-      <img class="ad-thumb" src="https://scontent-ord5-3.xx.fbcdn.net/v/t15.5256-10/622819583_903073905597042_4798329269040195453_n.jpg?_nc_cat=106&ccb=1-7&_nc_eui2=AeEL_xFtO9p558RDBMC2AeyxCmW3Z7TBxtAKZbdntMHG0Bk0LSuehPNghp1h_fiWpPQ&_nc_ohc=qqxGTQMKtoEQ7kNvwEZ0KT9&_nc_oc=AdmrBiR0U5y_5GzqdtSe-8A3qJbximOCfOuSuaUT_lkHxjow5FVVXanVCx3I78CJpF4&_nc_zt=23&_nc_ht=scontent-ord5-3.xx&edm=AOgd6ZUEAAAA&oh=00_Afs2Z5Rjd2sBRZQYA6IemabYzc8a3hMk_gTRCSrvqGXj_Q&oe=69A2725E" alt="Ad thumbnail" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-      <div class="ad-thumb-placeholder" style="display:none">🎬</div>
-      <div class="ad-body">
-        <div class="ad-name">Video - Cuantas veces Sin sissy al principio 1 | 28.01</div>
-        <div class="ad-metrics">
-          <div class="ad-metric">CTR <span style="color:var(--green)">11.96%</span></div>
-          <div class="ad-metric">CPC <span>$22</span></div>
-          <div class="ad-metric">Clicks <span>36</span></div>
-          <div class="ad-metric">Gasto <span>$788</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="ad-card">
-      <img class="ad-thumb" src="https://scontent-ord5-3.xx.fbcdn.net/v/t15.5256-10/624734432_4130031020581633_4446984895228994852_n.jpg?_nc_cat=107&ccb=1-7&_nc_eui2=AeE3f_5wIzQBS9DXylXw-cJ2SjGM84XndptKMYzzhed2m7BMutMDODH-1ms2_d_P2Jg&_nc_ohc=CxEFjFvNJA0Q7kNvwHmKzvl&oh=00_Afuzh7VR9U0vyzreS82FLcMpG3JLnocKjCyc09vxFQqvLQ&oe=69A26042" alt="Ad thumbnail" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-      <div class="ad-thumb-placeholder" style="display:none">🎬</div>
-      <div class="ad-body">
-        <div class="ad-name">Video - Romi 1 | 28.01</div>
-        <div class="ad-metrics">
-          <div class="ad-metric">CTR <span style="color:var(--green)">8.26%</span></div>
-          <div class="ad-metric">CPC <span>$21</span></div>
-          <div class="ad-metric">Clicks <span>66</span></div>
-          <div class="ad-metric">Gasto <span>$1.396</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="ad-card">
-      <img class="ad-thumb" src="https://scontent-ord5-2.xx.fbcdn.net/v/t15.5256-10/624280794_1416121443246365_8281690433045619743_n.jpg?_nc_cat=104&ccb=1-7&oh=00_AfsENNxbIqMU3mn0N59muHJnTKb7kfDOjgzKCAc_oigSTQ&oe=69A28AB7" alt="Ad thumbnail" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-      <div class="ad-thumb-placeholder" style="display:none">🎬</div>
-      <div class="ad-body">
-        <div class="ad-name">Video - Romi 2 | Si llegaste hasta aquí | 28.01</div>
-        <div class="ad-metrics">
-          <div class="ad-metric">CTR <span style="color:var(--green)">6.31%</span></div>
-          <div class="ad-metric">CPC <span>$28</span></div>
-          <div class="ad-metric">Clicks <span>31</span></div>
-          <div class="ad-metric">Gasto <span>$861</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="ad-card">
-      <img class="ad-thumb" src="https://scontent-ord5-2.xx.fbcdn.net/v/t51.71878-10/491440278_1316405219469717_2199676689403529317_n.jpg?_nc_cat=102&ccb=1-7&oh=00_AfvNKnPxNkIleVfM7pWeyXZjwhvLaO7ASGcBZyQQVJ9_Dw&oe=69A27D06" alt="Ad thumbnail" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-      <div class="ad-thumb-placeholder" style="display:none">🎬</div>
-      <div class="ad-body">
-        <div class="ad-name">2025.06.24 Reel Org 18/06 CTA Enviar Mensaje</div>
-        <div class="ad-metrics">
-          <div class="ad-metric">CTR <span style="color:var(--yellow)">1.83%</span></div>
-          <div class="ad-metric">CPC <span>$167</span></div>
-          <div class="ad-metric">Clicks <span>17</span></div>
-          <div class="ad-metric">Gasto <span>$2.830</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="ad-card">
-      <img class="ad-thumb" src="https://scontent-ord5-3.xx.fbcdn.net/v/t15.5256-10/621193004_3832177713741268_6487311255135137404_n.jpg?_nc_cat=100&ccb=1-7&oh=00_AftRODzizirg_AWeG06D6rlTKE6Jx1BSm6BOd_YgqpWD4g&oe=69A257D4" alt="Ad thumbnail" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-      <div class="ad-thumb-placeholder" style="display:none">🎬</div>
-      <div class="ad-body">
-        <div class="ad-name">Video - El Vello No es Problema | 25.01</div>
-        <div class="ad-metrics">
-          <div class="ad-metric">CTR <span style="color:var(--yellow)">1.15%</span></div>
-          <div class="ad-metric">CPC <span>$180</span></div>
-          <div class="ad-metric">Clicks <span>3</span></div>
-          <div class="ad-metric">Gasto <span>$539</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="ad-card">
-      <div class="ad-thumb-placeholder">📷</div>
-      <div class="ad-body">
-        <div class="ad-name">1 sesión Depilación laser Cliente nuevo | 22.02</div>
-        <div class="ad-metrics">
-          <div class="ad-metric">CTR <span style="color:var(--red)">0.78%</span></div>
-          <div class="ad-metric">CPC <span>$246</span></div>
-          <div class="ad-metric">Clicks <span>4</span></div>
-          <div class="ad-metric">Gasto <span>$983</span></div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- TOP PRODUCTS -->
-  <div class="section-title">🛍️ Top Productos / Servicios</div>
-  <div class="table-card">
-    <h3>Ranking por Revenue — Total 30 días</h3>
-    <div style="overflow-x:auto">
+  <div style="margin-bottom:12px;font-size:14px;font-weight:600;color:var(--text2);">Top 10 Productos — Últimos 30 días</div>
+  <div class="table-wrap">
     <table>
       <thead>
         <tr>
           <th>#</th>
-          <th>Producto / Servicio</th>
-          <th>Revenue Total</th>
-          <th>Unidades</th>
-          <th>% del Total</th>
-          <th style="min-width:120px">Participación</th>
+          <th>Producto</th>
+          <th class="td-num">Revenue</th>
+          <th class="td-num">Unidades</th>
+          <th style="width:160px;">% del Total</th>
         </tr>
       </thead>
-      <tbody id="products-tbody">
-        <tr>
-          <td style="color:var(--accent2);font-weight:700">1</td>
-          <td style="font-size:0.78rem;max-width:300px">Brasileño | Depilación láser Alexandrita Pro de Candela</td>
-          <td style="font-weight:600;color:#fff">$2.548.700</td>
-          <td>9</td>
-          <td>21.8%</td>
-          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:100%"></div></div></td>
-        </tr>
-        <tr>
-          <td style="color:var(--accent2);font-weight:700">2</td>
-          <td style="font-size:0.78rem;max-width:300px">SF - Abdomen + Espalda (Sculpt Freeze)</td>
-          <td style="font-weight:600;color:#fff">$1.800.000</td>
-          <td>4</td>
-          <td>15.4%</td>
-          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:70.6%"></div></div></td>
-        </tr>
-        <tr>
-          <td style="color:var(--accent2);font-weight:700">3</td>
-          <td style="font-size:0.78rem;max-width:300px">Brazo Completo | Depilación láser Alexandrita Pro</td>
-          <td style="font-weight:600;color:#fff">$1.701.000</td>
-          <td>6</td>
-          <td>14.6%</td>
-          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:66.7%"></div></div></td>
-        </tr>
-        <tr>
-          <td style="color:var(--text2);font-weight:700">4</td>
-          <td style="font-size:0.78rem;max-width:300px">TRATAMIENTO REJUVENECIMIENTO FACIAL | Láser Chrome</td>
-          <td style="font-weight:600;color:#fff">$1.350.000</td>
-          <td>3</td>
-          <td>11.6%</td>
-          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:53%"></div></div></td>
-        </tr>
-        <tr>
-          <td style="color:var(--text2);font-weight:700">5</td>
-          <td style="font-size:0.78rem;max-width:300px">RETOQUE de Piernas completas | Alexandrita Pro</td>
-          <td style="font-weight:600;color:#fff">$1.200.000</td>
-          <td>6</td>
-          <td>10.3%</td>
-          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:47.1%"></div></div></td>
-        </tr>
-        <tr>
-          <td style="color:var(--text2);font-weight:700">6</td>
-          <td style="font-size:0.78rem;max-width:300px">RETOQUE de Brasileño | Alexandrita Pro</td>
-          <td style="font-weight:600;color:#fff">$1.080.000</td>
-          <td>9</td>
-          <td>9.3%</td>
-          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:42.4%"></div></div></td>
-        </tr>
-        <tr>
-          <td style="color:var(--text2);font-weight:700">7</td>
-          <td style="font-size:0.78rem;max-width:300px">Glúteos | Depilación láser Alexandrita Pro</td>
-          <td style="font-weight:600;color:#fff">$990.000</td>
-          <td>6</td>
-          <td>8.5%</td>
-          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:38.8%"></div></div></td>
-        </tr>
-        <tr>
-          <td style="color:var(--text2);font-weight:700">8</td>
-          <td style="font-size:0.78rem;max-width:300px">Evaluación Para Sculpt Freeze</td>
-          <td style="font-weight:600;color:#fff">$625.000</td>
-          <td>25</td>
-          <td>5.4%</td>
-          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:24.5%"></div></div></td>
-        </tr>
-        <tr>
-          <td style="color:var(--text2);font-weight:700">9</td>
-          <td style="font-size:0.78rem;max-width:300px">Bikini | Depilación láser Alexandrita Pro</td>
-          <td style="font-weight:600;color:#fff">$535.500</td>
-          <td>3</td>
-          <td>4.6%</td>
-          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:21%"></div></div></td>
-        </tr>
-        <tr>
-          <td style="color:var(--text2);font-weight:700">10</td>
-          <td style="font-size:0.78rem;max-width:300px">Medio Rostro | Depilación láser Alexandrita Pro</td>
-          <td style="font-weight:600;color:#fff">$520.500</td>
-          <td>3</td>
-          <td>4.5%</td>
-          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:20.4%"></div></div></td>
-        </tr>
-      </tbody>
+      <tbody id="products-tbody"></tbody>
     </table>
-    </div>
   </div>
+</div>
 
-</main>
+<!-- GA4 TRAFFIC -->
+<div class="section">
+  <div class="section-title">📡 Google Analytics — Fuentes de Tráfico (90 días)</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Canal</th>
+          <th class="td-num">Sesiones</th>
+          <th>Volumen</th>
+          <th class="td-num">Usuarios</th>
+          <th class="td-num">Nuevos</th>
+          <th class="td-num">Conversiones</th>
+          <th class="td-num">Revenue</th>
+        </tr>
+      </thead>
+      <tbody id="ga4-tbody"></tbody>
+      <tfoot>
+        <tr class="totals-row" id="ga4-totals"></tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
 
-<footer>⏱️ Actualizado automáticamente cada día a las 8:00 AM · Kyest.cl BI Dashboard © 2026</footer>
+<!-- INSIGHTS -->
+<div class="section">
+  <div class="section-title">🔑 Insights & Recomendaciones</div>
+  <div class="insights-grid" id="insights-grid"></div>
+</div>
+
+</div><!-- /container -->
 
 <script>
-// ─── DATA ───────────────────────────────────────────────────────────────────
-const data = {
-  rev_per_day_7d: 644176, rev_per_day_30d: 785462,
-  rev_7d: 4509231, rev_30d: 23563871,
-  spend_per_day_7d: 74633, spend_per_day_30d: 69500,
-  spend_7d: 522434, spend_30d: 2085000,
-  roas_7d: 8.63, roas_30d: 11.31,
-  net_per_day_7d: 569543, net_per_day_30d: 715962,
-  orders_7d: 31, orders_30d: 163,
-  daily: [
-    {date:"24/01",rev:450000},{date:"25/01",rev:320000},{date:"26/01",rev:560000},
-    {date:"27/01",rev:890000},{date:"28/01",rev:430000},{date:"29/01",rev:750000},
-    {date:"30/01",rev:4703000},{date:"31/01",rev:620000},{date:"01/02",rev:380000},
-    {date:"02/02",rev:540000},{date:"03/02",rev:710000},{date:"04/02",rev:820000},
-    {date:"05/02",rev:490000},{date:"06/02",rev:670000},{date:"07/02",rev:590000},
-    {date:"08/02",rev:430000},{date:"09/02",rev:780000},{date:"10/02",rev:920000},
-    {date:"11/02",rev:650000},{date:"12/02",rev:510000},{date:"13/02",rev:840000},
-    {date:"14/02",rev:213900},{date:"15/02",rev:0},{date:"16/02",rev:1275070},
-    {date:"17/02",rev:905100},{date:"18/02",rev:618500},{date:"19/02",rev:493500},
-    {date:"20/02",rev:472000},{date:"21/02",rev:604000},{date:"23/02",rev:1173631}
-  ]
+// ============================================================
+// DATA
+// ============================================================
+const shopify = {
+  rev7: 4116890, orders7: 30, aov7: 137230,
+  rev30: 23171530, orders30: 162, aov30: 143034,
+  rev90: 33372250, orders90: 249, aov90: 134025,
+  daily_rev: [{"date":"2026-01-24","rev":0},{"date":"2026-01-25","rev":0},{"date":"2026-01-26","rev":865400},{"date":"2026-01-27","rev":171800},{"date":"2026-01-28","rev":304150},{"date":"2026-01-29","rev":554500},{"date":"2026-01-30","rev":4722750},{"date":"2026-01-31","rev":1184830},{"date":"2026-02-01","rev":0},{"date":"2026-02-02","rev":305480},{"date":"2026-02-03","rev":595000},{"date":"2026-02-04","rev":349000},{"date":"2026-02-05","rev":551300},{"date":"2026-02-06","rev":572700},{"date":"2026-02-07","rev":74000},{"date":"2026-02-08","rev":0},{"date":"2026-02-09","rev":828000},{"date":"2026-02-10","rev":2608400},{"date":"2026-02-11","rev":441900},{"date":"2026-02-12","rev":1500470},{"date":"2026-02-13","rev":1936990},{"date":"2026-02-14","rev":212900},{"date":"2026-02-15","rev":0},{"date":"2026-02-16","rev":1275070},{"date":"2026-02-17","rev":1012600},{"date":"2026-02-18","rev":623500},{"date":"2026-02-19","rev":613500},{"date":"2026-02-20","rev":472000},{"date":"2026-02-21","rev":614000},{"date":"2026-02-22","rev":0}],
+  monthly_rev: {"2026-01":18004150,"2026-02":15368100},
+  monthly_orders: {"2026-01":135,"2026-02":114},
+  new_customers_month: {"2026-01":113,"2026-02":84},
+  top_products: [{"name":"Sculpt Freeze Abdomen + espalda + 6 MAF + bonos","revenue":2000000,"qty":1,"pct":23.7},{"name":"Abono inicial tratamiento de Sculpt freeze abd+ espalda + 6","revenue":1310000,"qty":1,"pct":15.5},{"name":"Sculpt freeze abd+espalda+ 6 maf","revenue":970000,"qty":1,"pct":11.5},{"name":"Brasileño | Depilación láser Alexandrita Pro de Candela","revenue":849000,"qty":3,"pct":10.0},{"name":"RETOQUE de Brasileño |Depilación láser Alexandrita Pro de Ca","revenue":720000,"qty":6,"pct":8.5},{"name":"Abono Final tratamiento de Sculpt Freeze","revenue":700000,"qty":1,"pct":8.3},{"name":"3er abono sculptfreeze abdomen y espalda +6 maf + criodinami","revenue":500000,"qty":1,"pct":5.9},{"name":"3er abono sculptfreeze abd +espalda + 6 maf + criodinamica +","revenue":500000,"qty":1,"pct":5.9},{"name":"TRATAMIENTO REJUVENECIMIENTO FACIAL CON LASER | Láser Chrom","revenue":450000,"qty":1,"pct":5.3},{"name":"3 sesiones maf corporal + crioestatica de brazos","revenue":450000,"qty":1,"pct":5.3}]
 };
 
-let currentRange = 7;
+const meta = {
+  total_spend: 1696612,
+  total_impressions: 817016,
+  total_clicks: 12724,
+  avg_ctr: 1.56,
+  avg_cpc: 133,
+  campaigns: [{"name":"Sculpt Freeze | LL 1% | 22.01","objective":"OUTCOME_LEADS","status":"ACTIVE","spend":779036,"impressions":130109,"clicks":3585,"ctr":2.76,"cpc":217,"cpm":5988,"frequency":3.7,"purchases":2},{"name":"AON - WSP - Lead - Depilación Laser | 13.01","objective":"OUTCOME_LEADS","status":"ACTIVE","spend":661338,"impressions":567121,"clicks":6834,"ctr":1.21,"cpc":97,"cpm":1166,"frequency":7.4,"purchases":3},{"name":"AON - WEB - Ventas - Depilación Láser audience | 25.01","objective":"OUTCOME_SALES","status":"PAUSED","spend":142924,"impressions":56684,"clicks":1038,"ctr":1.83,"cpc":138,"cpm":2521,"frequency":6.2,"purchases":2},{"name":"New | AON - WEB - Ventas - Depilación Láser audience | 10.02","objective":"OUTCOME_SALES","status":"ACTIVE","spend":85191,"impressions":45817,"clicks":1009,"ctr":2.2,"cpc":84,"cpm":1859,"frequency":8.6,"purchases":3},{"name":"AON - WSP - ENG - Depilación Laser | 24.01","objective":"OUTCOME_ENGAGEMENT","status":"PAUSED","spend":17838,"impressions":12366,"clicks":193,"ctr":1.56,"cpc":92,"cpm":1443,"frequency":1.4,"purchases":0},{"name":"AON - WEB - Ventas - Depilación Láser | 21.01","objective":"OUTCOME_SALES","status":"PAUSED","spend":7888,"impressions":3627,"clicks":50,"ctr":1.38,"cpc":158,"cpm":2175,"frequency":2.2,"purchases":2},{"name":"AON RMKT - WSP - Lead - Depilación Laser | 13.01","objective":"OUTCOME_LEADS","status":"PAUSED","spend":2397,"impressions":1292,"clicks":15,"ctr":1.16,"cpc":160,"cpm":1855,"frequency":2.0,"purchases":0}],
+  adsets: [{"name":"A+ Broad | 28.01 | Imagenes 2da ronda","status":"ACTIVE","spend":104361,"impressions":71472,"clicks":580,"ctr":0.81,"cpc":180,"cpm":1460},{"name":"A+ Broad | 05.02 | Dali Imagenes 3ra+ ronda","status":"ACTIVE","spend":93738,"impressions":89340,"clicks":652,"ctr":0.73,"cpc":144,"cpm":1049},{"name":"A+ Broad | 10.02 | Videos 14F","status":"PAUSED","spend":85326,"impressions":72225,"clicks":1044,"ctr":1.45,"cpc":82,"cpm":1181},{"name":"A+ Broad | 19.02 | Cliente nuevo","status":"ACTIVE","spend":71872,"impressions":54175,"clicks":786,"ctr":1.45,"cpc":91,"cpm":1327},{"name":"A+ | 14F y otras? | 18-65+ All","status":"ACTIVE","spend":67877,"impressions":24020,"clicks":294,"ctr":1.22,"cpc":231,"cpm":2826},{"name":"A+ | Locations | 18-65+ All -Videos","status":"ACTIVE","spend":67587,"impressions":25163,"clicks":654,"ctr":2.6,"cpc":103,"cpm":2686},{"name":"WEB | A+ | Cliente nuevo | 18-65+ 17.02","status":"ACTIVE","spend":34453,"impressions":18502,"clicks":253,"ctr":1.37,"cpc":136,"cpm":1862},{"name":"A+ | Locations | 18-65+ All – Graficas estáticas - Copy Corto","status":"ACTIVE","spend":23450,"impressions":7743,"clicks":114,"ctr":1.47,"cpc":206,"cpm":3029},{"name":"WEB | A+ | Locations | 18-65+ All -Videos TOFU","status":"ACTIVE","spend":17235,"impressions":7753,"clicks":408,"ctr":5.26,"cpc":42,"cpm":2223},{"name":"WEB | A+ | Imagenes 2da ronda | 10.02","status":"ACTIVE","spend":16588,"impressions":7638,"clicks":111,"ctr":1.45,"cpc":149,"cpm":2172}],
+  ads: [{"name":"Video - Cuantas veces Sin sissy al principio 1 | 28.01","status":"ACTIVE","thumbnail":"https://scontent-ord5-3.xx.fbcdn.net/v/t15.5256-10/622819583_903073905597042_4798329269040195453_n.jpg?_nc_cat=106&ccb=1-7&_nc_eui2=AeEL_xFtO9p558RDBMC2AeyxCmW3Z7TBxtAKZbdntMHG0Bk0LSuehPNghp1h_fiWpPQ&_nc_ohc=qqxGTQMKtoEQ7kNvwEEZoMz&_nc_oc=AdnCAcTLYT-Ne7nJhhNYCsuuQa7nBTkPW7KEMTaYKShPrO_ebVnnM5rE-g3sGpXhXAI&_nc_zt=23&_nc_ht=scontent-ord5-3.xx&edm=AOgd6ZUEAAAA&_nc_gid=XaoeojXf6urWfjvC06TNhw&_nc_tpa=Q5bMBQHWozTbrSNTw4DmrPoPnAcImrzm0qanpp9Yl9D_JfRqYh5TuoYJ7QJj7OJeLdeBuoL4ZVXCekwy2Q&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=5fad0e&_nc_sid=58080a&oh=00_AfsPEzVym5nWRYxA6JSSuOc0s5BkFaPchr-nJ3DnT12AHw&oe=69A2725E","spend":788,"impressions":301,"clicks":36,"ctr":11.96,"cpc":22,"cpm":2618},{"name":"Video - Romi 1  | 28.01","status":"ACTIVE","thumbnail":"https://scontent-ord5-3.xx.fbcdn.net/v/t15.5256-10/624734432_4130031020581633_4446984895228994852_n.jpg?_nc_cat=107&ccb=1-7&_nc_eui2=AeE3f_5wIzQBS9DXylXw-cJ2SjGM84XndptKMYzzhed2m7BMutMDODH-1ms2_d_P2Jg&_nc_ohc=CxEFjFvNJA0Q7kNvwFm086p&_nc_oc=Adl492RUmKlni6e77IS_7r4eAsj7vs3AdtaSK7hOT6LiBze45at9SQ7Ko1UlA6iowhM&_nc_zt=23&_nc_ht=scontent-ord5-3.xx&edm=AOgd6ZUEAAAA&_nc_gid=XaoeojXf6urWfjvC06TNhw&_nc_tpa=Q5bMBQFMP1OIxDaDTuqvSqfGw2kbQ_o17LAyti_4wqJheFNNJFZmgj60BnkTpRPKmHDsqLli8fZzl9w&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=5fad0e&_nc_sid=58080a&oh=00_AfvTiK_Jm0m5J72H37SwSu248pt1jxKuYDmwDIUGZTruvg&oe=69A26042","spend":1396,"impressions":799,"clicks":66,"ctr":8.26,"cpc":21,"cpm":1747},{"name":"Video - Romi 2 | Si llegaste hasta aquí  | 28.01","status":"ACTIVE","thumbnail":"https://scontent-ord5-2.xx.fbcdn.net/v/t15.5256-10/624280794_1416121443246365_8281690433045619743_n.jpg?_nc_cat=104&ccb=1-7&_nc_eui2=AeGvKey5GtJDFPqYMuRdWWdEGg6ACYfjFVYaDoAJh-MVVtZUEl92UalCqODDtXKlbr8&_nc_ohc=XsvaQnSwa-AQ7kNvwFldLLJ&_nc_oc=AdmuFxKNhcz09ysbquoKtM1DLeTns-NJ2UaEVV8_ZdSxCyC8YU7xnRKpHeH6Wh6VccM&_nc_zt=23&_nc_ht=scontent-ord5-2.xx&edm=AOgd6ZUEAAAA&_nc_gid=XaoeojXf6urWfjvC06TNhw&_nc_tpa=Q5bMBQEFP-RGfJ0ZNP6XgjUszgo72PKSGs-T7pvqCEtv0XX_4BWqVqV1mnHjyo9--IHBZb7sqxO05Rpiew&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=5fad0e&_nc_sid=58080a&oh=00_Afuk3bwsTzipRqHVBkLkfyL_8LDaqBVTHNQbidsDgzslVQ&oe=69A28AB7","spend":861,"impressions":491,"clicks":31,"ctr":6.31,"cpc":28,"cpm":1754},{"name":"Video | Testimonio React","status":"ACTIVE","thumbnail":"https://scontent-ord5-2.xx.fbcdn.net/v/t15.5256-10/638320508_1736502967310593_7248716817058217949_n.jpg?_nc_cat=105&ccb=1-7&_nc_eui2=AeHySQU-JrNpdWC70AkNkL8VjHsIw_QrasOMewjD9Ctqw7Z8oaXRM7Gy0jLWzNqTRsY&_nc_ohc=fFYXbhrQxjwQ7kNvwFhs06F&_nc_oc=Adlmj4fpD9rMEaMafO4IqJehpF9h-fheZmLYan-PAwv23Pz9HLR_9HXggCg0C6LWn5Y&_nc_zt=23&_nc_ht=scontent-ord5-2.xx&edm=AOgd6ZUEAAAA&_nc_gid=XaoeojXf6urWfjvC06TNhw&_nc_tpa=Q5bMBQHAcn_IS7u4VLrr_wcPJBzy1YXIvv_jd5oQL3wEfoqNsSsS_8Di41-k_oRoV-w-IIfR7H5Ekgas_A&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=5fad0e&_nc_sid=58080a&oh=00_Afu1mPtYDKJUOkBG9JXXGyW28BKnDsJ-poAFtRgsSygA5w&oe=69A29038","spend":4653,"impressions":2792,"clicks":72,"ctr":2.58,"cpc":65,"cpm":1667},{"name":"Video | Confianza Ro y Sissy | 20.02","status":"ACTIVE","thumbnail":"https://scontent.fscl20-1.fna.fbcdn.net/v/t15.5256-10/638322058_1672250803946845_3674366485011311213_n.jpg?_nc_cat=109&ccb=1-7&_nc_ohc=4QD3TT5tFFUQ7kNvwG1ELyT&_nc_oc=Adk7CX5m7ikqn57QmkfTGpU17RT1-eO4xdQez3QkKEOhYSlQnp_6ampqmsEeEb5W1v8&_nc_ad=z-m&_nc_cid=1522&_nc_zt=23&_nc_ht=scontent.fscl20-1.fna&_nc_gid=e7B0aUWlKcHDF50vZC71-w&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=5fad0e&_nc_sid=58080a&oh=00_Afst8eSxbAZWIswq8c92ChajeC0QYIyunyv60r2_nIE1OQ&oe=69A0D04D","spend":245,"impressions":209,"clicks":4,"ctr":1.91,"cpc":61,"cpm":1172},{"name":"2025.06.24 Reel Org 18/06 CTA Enviar Mensaje","status":"ACTIVE","thumbnail":"https://scontent-ord5-2.xx.fbcdn.net/v/t51.71878-10/491440278_1316405219469717_2199676689403529317_n.jpg?_nc_cat=102&ccb=1-7&_nc_eui2=AeFxfbkdGV0Y8AF6fAJ_aIeeW65wALD2z0lbrnAAsPbPSXCLta_Fu3I-iBuZSL9bXjA&_nc_ohc=UDhbVLlp1lUQ7kNvwE1EUU-&_nc_oc=AdnpVUH8RKxUAVAbiXT6CqEUfaXizmI4LGIFQWQ2Y7hwUCyxvcPrRE1EIwqORL1hkcw&_nc_zt=23&_nc_ht=scontent-ord5-2.xx&edm=AOgd6ZUEAAAA&_nc_gid=XaoeojXf6urWfjvC06TNhw&_nc_tpa=Q5bMBQFCm9_C3y_enigP92LhWwOdlcT1uO7SkWBC239SVjCfOrzra3r8MfWPmtwzUe8CSNcVAUkW7wfSww&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=33e7a6&_nc_sid=58080a&oh=00_Afs7oAM3BBH1MIDAjbL5LCTjnjWu6-uaay9GERsHqTxq0w&oe=69A27D06","spend":2830,"impressions":928,"clicks":17,"ctr":1.83,"cpc":166,"cpm":3050},{"name":"No lo pienses axilas Cliente nuevo Clara | 16.02","status":"PAUSED","thumbnail":"https://scontent-ord5-3.xx.fbcdn.net/v/t45.1600-4/634031720_10162945163916379_3032036491975315162_n.jpg?_nc_cat=107&ccb=1-7&_nc_eui2=AeFPK44HqjDtFC0zmORCE242mjuK6pzKJ8OaO4rqnMonwwwVZYyidMDfTX1zRZLPSRc&_nc_ohc=0Uec472zyyQQ7kNvwFk_c68&_nc_oc=Adk4d-gSksRAPbCjfBnsuVH5tGcLq8L9XJqZWPaSRmCWa68B01vdzpw6UtFk4Kk33DQ&_nc_zt=1&_nc_ht=scontent-ord5-3.xx&edm=AOgd6ZUEAAAA&_nc_gid=XaoeojXf6urWfjvC06TNhw&_nc_tpa=Q5bMBQHWWDtSwD0nMxIwPT4h7JeRGINOWV2_yV1OdEJ71U1duwiLRDWAb8HEN8fHOVHDN_tTSmdCDg8HNA&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=52f3c4&_nc_sid=58080a&oh=00_AfupKQFxWs7imV4ZMeHrLOvRST0O9su9lIWvucvDoAvZGQ&oe=69A26A5D","spend":1211,"impressions":500,"clicks":7,"ctr":1.4,"cpc":173,"cpm":2422},{"name":"Video | Vello no es problema| 23.01 – Video nuevo","status":"ACTIVE","thumbnail":"https://scontent-ord5-2.xx.fbcdn.net/v/t15.5256-10/619200064_887988106978063_198552182545491293_n.jpg?_nc_cat=104&ccb=1-7&_nc_eui2=AeFBg5q8JboQO6fVwxvFaFo-hXfhbn_8uK2Fd-Fuf_y4racpJLs1Dz9pXmfw80MTcdM&_nc_ohc=BZc9W3uvCTEQ7kNvwEtYTVL&_nc_oc=AdmH830ZlSqOIqgDaBPnEz8Tk_JgAdXKDQI1GRcvGuYYFhLkQ4HkRZqto8CQmWI4S9c&_nc_zt=23&_nc_ht=scontent-ord5-2.xx&edm=AOgd6ZUEAAAA&_nc_gid=XaoeojXf6urWfjvC06TNhw&_nc_tpa=Q5bMBQGAm6rgsZnYwQ4cU0ol9C9mjaau6JJ5DCfk2gQtIaWoVEvvVKhzcNRCWpDO9YdX63lDpw3FB9iKFQ&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=5fad0e&_nc_sid=58080a&oh=00_Afs3VbW2O8EZZpnTAiwMiT7vRFfAfG2mdBbPVQeXpr_tKA&oe=69A26EEA","spend":609,"impressions":618,"clicks":8,"ctr":1.29,"cpc":76,"cpm":985},{"name":"Video | 3 Ventajas Alexandrita Pro| 13.01","status":"ACTIVE","thumbnail":"https://scontent-ord5-3.xx.fbcdn.net/v/t15.13418-10/525568402_1169257701705555_7587565034634921556_n.jpg?_nc_cat=107&ccb=1-7&_nc_eui2=AeEHVLzrTMUe0BMkUcEYHXinq3oYISvtnFKrehghK-2cUmGPtIB96KGpCCyBwikqBcg&_nc_ohc=5QAWsdeLNbAQ7kNvwFMPGA-&_nc_oc=Adk_nGfTmS6JBk1ZfiQhF5_ramgSSuuV_BLXCDi0t0V_vJDH3U93p9XzMA0QskvcMDM&_nc_zt=23&_nc_ht=scontent-ord5-3.xx&edm=AOgd6ZUEAAAA&_nc_gid=XaoeojXf6urWfjvC06TNhw&_nc_tpa=Q5bMBQF8qLaAEPsHq_RxTwx6Blhi4nlnOb7Xx_jqw5IniimXikoT4veNFws_HTivqqDaLy7YvXp6kFlI9Q&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=aaa768&_nc_sid=58080a&oh=00_AfuSETm3gYYNJOEBLRg0-1UKhXl4TpzpEz7Wb-7Fjdq-_A&oe=69A26F72","spend":303,"impressions":163,"clicks":2,"ctr":1.23,"cpc":152,"cpm":1859},{"name":"Video | Confianza Ro y Sissy | 20.02 (v2)","status":"ACTIVE","thumbnail":"https://scontent.fscl35-1.fna.fbcdn.net/v/t15.5256-10/637013046_936673085550186_3125368830032873412_n.jpg?_nc_cat=102&ccb=1-7&_nc_ohc=kxRvaUvCKhwQ7kNvwGQyU1I&_nc_oc=AdnSp1_PZLGFEkwjw1xFM_9unydBAq346IlXwFDQ-NXgfu5c6acsKOZIVpqvRTz6rW0&_nc_ad=z-m&_nc_cid=1522&_nc_zt=23&_nc_ht=scontent.fscl35-1.fna&_nc_gid=t_30k8MqE8dtttbomRV03g&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=5fad0e&_nc_sid=58080a&oh=00_AftAb4Uy_ZGOMl1kcFsnKiKxVVe7FmcbeIu0Bewh99O76g&oe=69A0CFC9","spend":119,"impressions":85,"clicks":1,"ctr":1.18,"cpc":119,"cpm":1400},{"name":"Video - El Vello No es Problema | 25.01","status":"ACTIVE","thumbnail":"https://scontent-ord5-3.xx.fbcdn.net/v/t15.5256-10/621193004_3832177713741268_6487311255135137404_n.jpg?_nc_cat=100&ccb=1-7&_nc_eui2=AeGsDLDua1K7TuR8jEy1YMYWyFpAP9wMLOXIWkA_3Aws5RSM5kejhSrMX9Xykn0hTDc&_nc_ohc=_QNeXBIgY-8Q7kNvwFcgiJi&_nc_oc=AdkxJW6Dhkhmxc1RX_Mg0cj-JjQBOgy9N0TP79GXFGFDzrNkGbaUUnuuEPoa5eVkctc&_nc_zt=23&_nc_ht=scontent-ord5-3.xx&edm=AOgd6ZUEAAAA&_nc_gid=XaoeojXf6urWfjvC06TNhw&_nc_tpa=Q5bMBQEWDd7EJFLZVIYpVRm3n4WjSy8qsIXMO8G_zXf90u-E40inwcj3u4MWYQgvwW85P7m-XNJfjFe0Eg&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=5fad0e&_nc_sid=58080a&oh=00_AfuyuTsQU1WIGXI6lVnXiGYawoN4qTpcl7oyJGdO_ejasg&oe=69A29014","spend":539,"impressions":261,"clicks":3,"ctr":1.15,"cpc":180,"cpm":2065}]
+};
 
-// ─── DATE RANGE ─────────────────────────────────────────────────────────────
-function setRange(days) {
-  currentRange = days;
-  document.getElementById('btn7').classList.toggle('active', days === 7);
-  document.getElementById('btn30').classList.toggle('active', days === 30);
+const ga4Channels = [
+  {"channel":"Paid Social","sessions":2829,"users":2217,"newUsers":2187,"conversions":1,"revenue":50000},
+  {"channel":"Organic Search","sessions":1113,"users":682,"newUsers":670,"conversions":5,"revenue":642000},
+  {"channel":"Direct","sessions":1064,"users":780,"newUsers":781,"conversions":25,"revenue":3892750},
+  {"channel":"Organic Social","sessions":1043,"users":904,"newUsers":882,"conversions":4,"revenue":575100},
+  {"channel":"Paid Other","sessions":643,"users":351,"newUsers":325,"conversions":0,"revenue":0},
+  {"channel":"Referral","sessions":183,"users":107,"newUsers":100,"conversions":0,"revenue":0},
+  {"channel":"Unassigned","sessions":65,"users":49,"newUsers":35,"conversions":2,"revenue":50000},
+  {"channel":"Organic Shopping","sessions":50,"users":10,"newUsers":7,"conversions":1,"revenue":0},
+  {"channel":"Email","sessions":29,"users":12,"newUsers":10,"conversions":0,"revenue":0},
+  {"channel":"Paid Search","sessions":7,"users":7,"newUsers":7,"conversions":0,"revenue":0}
+];
 
-  const fmt = n => '$' + Math.round(n).toLocaleString('es-CL');
-
-  document.getElementById('kpi-rev-day').textContent = fmt(days === 7 ? data.rev_per_day_7d : data.rev_per_day_30d);
-  document.getElementById('kpi-rev-total').textContent = `Total ${days}d: ${fmt(days === 7 ? data.rev_7d : data.rev_30d)}`;
-  document.getElementById('kpi-spend-day').textContent = fmt(days === 7 ? data.spend_per_day_7d : data.spend_per_day_30d);
-  document.getElementById('kpi-spend-total').textContent = `Total ${days}d: ${fmt(days === 7 ? data.spend_7d : data.spend_30d)}`;
-  document.getElementById('kpi-roas').textContent = (days === 7 ? data.roas_7d : data.roas_30d).toFixed(2) + 'x';
-  document.getElementById('kpi-net-day').textContent = fmt(days === 7 ? data.net_per_day_7d : data.net_per_day_30d);
-  const orders = days === 7 ? data.orders_7d : data.orders_30d;
-  document.getElementById('kpi-orders').textContent = (orders / days).toFixed(1);
-  document.getElementById('kpi-orders-total').textContent = `Total ${days}d: ${orders} órdenes`;
-
-  updateChart(days);
+// ============================================================
+// FORMATTERS
+// ============================================================
+function fCLP(n) {
+  if (n >= 1000000) return '$' + (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return '$' + Math.round(n/1000) + 'K';
+  return '$' + Math.round(n);
 }
+function fNum(n) { return new Intl.NumberFormat('es-CL').format(Math.round(n)); }
+function fPct(n) { return n.toFixed(2) + '%'; }
 
-// ─── CHART ───────────────────────────────────────────────────────────────────
-let chart;
-function updateChart(days) {
-  const slice = data.daily.slice(-days);
-  const labels = slice.map(d => d.date);
-  const revs = slice.map(d => d.rev);
-  const avgSpend = days === 7 ? data.spend_per_day_7d : data.spend_per_day_30d;
-  const spendLine = slice.map(() => avgSpend);
+// ============================================================
+// STATE
+// ============================================================
+let activeTab = '30';
 
-  if (chart) {
-    chart.data.labels = labels;
-    chart.data.datasets[0].data = revs;
-    chart.data.datasets[1].data = spendLine;
-    chart.update();
-    return;
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // Update date
+  const now = new Date();
+  document.getElementById('update-label').textContent = 'Actualizado: ' + now.toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'}) + ' ' + now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+
+  // ROAS check
+  const metaPurchases = meta.campaigns.reduce((s,c) => s + c.purchases, 0);
+  const metaAttributedRev = metaPurchases * shopify.aov30;
+  const metaROAS = meta.total_spend > 0 ? metaAttributedRev / meta.total_spend : 0;
+  const realROAS30 = meta.total_spend > 0 ? shopify.rev30 / meta.total_spend : 0;
+  if (metaROAS < 1) {
+    document.getElementById('pixel-alert').style.display = 'flex';
+    document.getElementById('pixel-alert-text').textContent =
+      `Pixel de Meta desconfigurado — ROAS Meta: ${metaROAS.toFixed(2)}x vs ROAS Real: ${realROAS30.toFixed(1)}x · Solo ${metaPurchases} compras rastreadas por Meta`;
   }
 
-  const ctx = document.getElementById('revenueChart').getContext('2d');
-  chart = new Chart(ctx, {
+  renderKPIs();
+  renderCharts();
+  renderMeta();
+  renderAds();
+  renderShopifySection();
+  renderGA4();
+  renderInsights(realROAS30, metaROAS);
+});
+
+function setTab(t) {
+  activeTab = t;
+  ['7','30','90'].forEach(x => {
+    document.getElementById('tab'+x).classList.toggle('active', x===t);
+  });
+  renderKPIs();
+}
+
+// ============================================================
+// KPIs
+// ============================================================
+function renderKPIs() {
+  const t = activeTab;
+  let rev, orders, aov, spend;
+  if (t === '7') { rev = shopify.rev7; orders = shopify.orders7; aov = shopify.aov7; spend = meta.total_spend * (7/90); }
+  else if (t === '30') { rev = shopify.rev30; orders = shopify.orders30; aov = shopify.aov30; spend = meta.total_spend; }
+  else { rev = shopify.rev90; orders = shopify.orders90; aov = shopify.aov90; spend = meta.total_spend; }
+
+  const roas = spend > 0 ? rev / spend : 0;
+  const net = rev - spend;
+  const metaPurchases = meta.campaigns.reduce((s,c) => s + c.purchases, 0);
+
+  const kpis = [
+    { icon:'💰', value: fCLP(rev), label:`Revenue Total · ${t}d`, trend:`${fNum(orders)} órdenes`, trendClass:'trend-neutral' },
+    { icon:'📦', value: fNum(orders), label:`Órdenes Pagadas · ${t}d`, trend:'', trendClass:'' },
+    { icon:'💵', value: fCLP(aov), label:'Ticket Promedio (AOV)', trend: t==='30'?'vs $134K (90d)':'', trendClass: aov > 134025 ? 'trend-up' : 'trend-down' },
+    { icon:'📈', value: roas.toFixed(1)+'x', label:'ROAS Real (Rev/Spend Meta)', trend: roas > 5 ? '🔥 Excelente' : roas > 2 ? 'Bueno' : 'Revisar', trendClass: roas > 5 ? 'trend-up' : roas > 2 ? 'trend-neutral' : 'trend-down' },
+    { icon:'💸', value: fCLP(spend), label:'Gasto Meta Ads · 90d', trend: `CPC: ${fCLP(meta.avg_cpc)}`, trendClass:'trend-neutral' },
+    { icon:'🧲', value: fCLP(net), label:`Ganancia Neta · ${t}d`, trend: net > 0 ? '↑ Positivo' : '↓ Negativo', trendClass: net > 0 ? 'trend-up' : 'trend-down' }
+  ];
+
+  const grid = document.getElementById('kpi-grid');
+  grid.innerHTML = kpis.map(k => `
+    <div class="kpi-card">
+      <div class="kpi-icon">${k.icon}</div>
+      <div class="kpi-value">${k.value}</div>
+      <div class="kpi-label">${k.label}</div>
+      ${k.trend ? `<div class="kpi-trend ${k.trendClass}">${k.trend}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// CHARTS
+// ============================================================
+let dailyChart, donutChart, monthlyChart, newCustChart;
+
+function renderCharts() {
+  // Daily Revenue
+  const labels = shopify.daily_rev.map(d => {
+    const dt = new Date(d.date + 'T12:00:00');
+    return dt.toLocaleDateString('es-CL',{day:'2-digit',month:'short'});
+  });
+  const values = shopify.daily_rev.map(d => d.rev);
+
+  const ctx1 = document.getElementById('dailyRevenueChart').getContext('2d');
+  dailyChart = new Chart(ctx1, {
     type: 'bar',
     data: {
       labels,
-      datasets: [
-        {
-          label: 'Revenue (CLP)',
-          data: revs,
-          backgroundColor: 'rgba(124,58,237,0.65)',
-          borderColor: 'rgba(159,103,255,0.9)',
-          borderWidth: 1,
-          borderRadius: 5,
-          yAxisID: 'y'
-        },
-        {
-          label: 'Gasto Promedio Ads',
-          data: spendLine,
-          type: 'line',
-          borderColor: '#f97316',
-          backgroundColor: 'rgba(249,115,22,0.1)',
-          borderWidth: 2,
-          pointRadius: 0,
-          fill: true,
-          tension: 0.4,
-          yAxisID: 'y'
+      datasets: [{
+        label: 'Revenue (CLP)',
+        data: values,
+        backgroundColor: values.map(v => v > 2000000 ? 'rgba(124,58,237,0.85)' : 'rgba(124,58,237,0.45)'),
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false }, tooltip: {
+        callbacks: { label: ctx => fCLP(ctx.raw) },
+        backgroundColor: '#1a1a2e', titleColor: '#f1f5f9', bodyColor: '#94a3b8', borderColor: '#1e1e35', borderWidth: 1
+      }},
+      scales: {
+        x: { ticks: { color: '#64748b', font: {size:10}, maxRotation: 45 }, grid: { display: false } },
+        y: { ticks: { color: '#64748b', font:{size:10}, callback: v => fCLP(v) }, grid: { color: '#1e1e35' } }
+      }
+    }
+  });
+
+  // Channel Donut
+  const chLabels = ['Paid Social','Organic Search','Direct','Organic Social','Otros'];
+  const chValues = [2829, 1113, 1064, 1043, 643+183+65+50+29+7];
+  const chColors = ['#7c3aed','#10b981','#3b82f6','#f97316','#64748b'];
+
+  const ctx2 = document.getElementById('channelDonut').getContext('2d');
+  donutChart = new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+      labels: chLabels,
+      datasets: [{ data: chValues, backgroundColor: chColors, borderWidth: 2, borderColor: '#13131f', hoverOffset: 6 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#94a3b8', font:{size:11}, padding: 12 } },
+        tooltip: {
+          callbacks: { label: ctx => `${ctx.label}: ${fNum(ctx.raw)} sesiones` },
+          backgroundColor: '#1a1a2e', titleColor: '#f1f5f9', bodyColor: '#94a3b8', borderColor: '#1e1e35', borderWidth: 1
         }
+      }
+    }
+  });
+
+  // Monthly Revenue + Orders
+  const months = Object.keys(shopify.monthly_rev).sort();
+  const monthLabels = months.map(m => { const [y,mo] = m.split('-'); return ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][parseInt(mo)-1]+' '+y; });
+  const monthRevs = months.map(m => shopify.monthly_rev[m] || 0);
+  const monthOrders = months.map(m => shopify.monthly_orders[m] || 0);
+
+  const ctx3 = document.getElementById('monthlyChart').getContext('2d');
+  monthlyChart = new Chart(ctx3, {
+    type: 'bar',
+    data: {
+      labels: monthLabels,
+      datasets: [
+        { type: 'bar', label: 'Revenue', data: monthRevs, backgroundColor: 'rgba(124,58,237,0.7)', borderRadius: 6, yAxisID: 'y' },
+        { type: 'line', label: 'Órdenes', data: monthOrders, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', pointBackgroundColor: '#10b981', pointRadius: 5, tension: .3, yAxisID: 'y2' }
       ]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       plugins: {
-        legend: { labels: { color: '#94a3b8', font: { size: 11 } } },
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              const v = ctx.raw;
-              return ` ${ctx.dataset.label}: $${Math.round(v).toLocaleString('es-CL')}`;
-            }
-          }
+        legend: { labels: { color: '#94a3b8', font:{size:11} } },
+        tooltip: { backgroundColor: '#1a1a2e', titleColor: '#f1f5f9', bodyColor: '#94a3b8', borderColor: '#1e1e35', borderWidth: 1,
+          callbacks: { label: ctx => ctx.datasetIndex === 0 ? fCLP(ctx.raw) : ctx.raw + ' órdenes' }
         }
       },
       scales: {
-        x: { ticks: { color: '#64748b', font: { size: 10 }, maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.04)' } },
-        y: { ticks: { color: '#64748b', font: { size: 10 }, callback: v => '$' + (v/1000).toFixed(0) + 'k' }, grid: { color: 'rgba(255,255,255,0.06)' } }
+        x: { ticks: { color: '#64748b', font:{size:11} }, grid: { display: false } },
+        y: { ticks: { color: '#64748b', font:{size:10}, callback: v => fCLP(v) }, grid: { color: '#1e1e35' }, position: 'left' },
+        y2: { ticks: { color: '#10b981', font:{size:10} }, grid: { display: false }, position: 'right' }
+      }
+    }
+  });
+
+  // New Customers
+  const custMonths = Object.keys(shopify.new_customers_month).sort();
+  const custLabels = custMonths.map(m => { const [y,mo] = m.split('-'); return ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][parseInt(mo)-1]+' '+y; });
+  const custValues = custMonths.map(m => shopify.new_customers_month[m] || 0);
+
+  const ctx4 = document.getElementById('newCustomersChart').getContext('2d');
+  newCustChart = new Chart(ctx4, {
+    type: 'bar',
+    data: {
+      labels: custLabels,
+      datasets: [{
+        label: 'Clientes Nuevos',
+        data: custValues,
+        backgroundColor: ['#10b981','#3b82f6'],
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: '#1a1a2e', titleColor: '#f1f5f9', bodyColor: '#94a3b8', borderColor: '#1e1e35', borderWidth: 1 }
+      },
+      scales: {
+        x: { ticks: { color: '#64748b', font:{size:11} }, grid: { display: false } },
+        y: { ticks: { color: '#64748b', font:{size:10} }, grid: { color: '#1e1e35' } }
       }
     }
   });
 }
 
-// Init
-setRange(7);
+// ============================================================
+// META
+// ============================================================
+function renderMeta() {
+  // Summary row
+  const summaryEl = document.getElementById('meta-summary');
+  const summaryItems = [
+    { value: fCLP(meta.total_spend), label: 'Total Gastado' },
+    { value: fNum(meta.total_impressions), label: 'Impresiones' },
+    { value: fNum(meta.total_clicks), label: 'Clicks Totales' },
+    { value: meta.avg_ctr + '%', label: 'CTR Promedio' }
+  ];
+  summaryEl.innerHTML = summaryItems.map(s => `
+    <div class="mini-card">
+      <div class="mini-card-value">${s.value}</div>
+      <div class="mini-card-label">${s.label}</div>
+    </div>
+  `).join('');
+
+  // Campaigns
+  function objBadge(obj) {
+    const map = {
+      'OUTCOME_SALES': ['badge-purple','Ventas'],
+      'OUTCOME_LEADS': ['badge-blue','Leads'],
+      'OUTCOME_ENGAGEMENT': ['badge-orange','Eng.'],
+      'OUTCOME_AWARENESS': ['badge-teal','Awareness']
+    };
+    const [cls, label] = map[obj] || ['badge-gray', obj];
+    return `<span class="badge ${cls}">${label}</span>`;
+  }
+  function statusDot(s) {
+    return s === 'ACTIVE'
+      ? `<span class="status-dot dot-green"></span><span style="color:var(--green);font-weight:600;">Activa</span>`
+      : `<span class="status-dot dot-gray"></span><span style="color:var(--text2);">Pausada</span>`;
+  }
+
+  const campBody = document.getElementById('campaigns-tbody');
+  campBody.innerHTML = meta.campaigns.filter(c => c.spend > 0).map(c => `
+    <tr>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;" title="${c.name}">${c.name}</td>
+      <td>${objBadge(c.objective)}</td>
+      <td>${statusDot(c.status)}</td>
+      <td class="td-num">${fCLP(c.spend)}</td>
+      <td class="td-num">${fNum(c.impressions)}</td>
+      <td class="td-num">${fNum(c.clicks)}</td>
+      <td class="td-num">${c.ctr}%</td>
+      <td class="td-num">${fCLP(c.cpc)}</td>
+      <td class="td-num">${fCLP(c.cpm)}</td>
+      <td class="td-num">${c.purchases > 0 ? `<span style="color:var(--green);font-weight:700;">${c.purchases}</span>` : '<span style="color:var(--text2);">—</span>'}</td>
+    </tr>
+  `).join('');
+
+  // Adsets
+  const adsetsBody = document.getElementById('adsets-tbody');
+  adsetsBody.innerHTML = meta.adsets.map(a => `
+    <tr>
+      <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;" title="${a.name}">${a.name}</td>
+      <td>${statusDot(a.status)}</td>
+      <td class="td-num">${fCLP(a.spend)}</td>
+      <td class="td-num">${fNum(a.impressions)}</td>
+      <td class="td-num">${fNum(a.clicks)}</td>
+      <td class="td-num">${a.ctr}%</td>
+      <td class="td-num">${fCLP(a.cpc)}</td>
+      <td class="td-num">${fCLP(a.cpm)}</td>
+    </tr>
+  `).join('');
+}
+
+function toggleAdsets() {
+  const content = document.getElementById('adsets-content');
+  const chevron = document.getElementById('adsets-chevron');
+  const label = document.getElementById('adsets-label');
+  const isOpen = content.classList.toggle('open');
+  chevron.classList.toggle('open', isOpen);
+  label.textContent = isOpen ? 'Ocultar' : 'Mostrar';
+}
+
+// ============================================================
+// ADS GRID
+// ============================================================
+function renderAds() {
+  const maxCTR = Math.max(...meta.ads.map(a => a.ctr));
+
+  function ctrBadge(ctr) {
+    if (ctr >= 5) return `<span class="badge badge-green">CTR ${ctr}%</span>`;
+    if (ctr >= 2) return `<span class="badge badge-yellow">CTR ${ctr}%</span>`;
+    return `<span class="badge badge-red">CTR ${ctr}%</span>`;
+  }
+
+  const grid = document.getElementById('ads-grid');
+  grid.innerHTML = meta.ads.map((ad, i) => {
+    const isBest = ad.ctr === maxCTR;
+    return `
+      <div class="ad-card">
+        ${isBest ? '<div class="crown-badge">🏆</div>' : ''}
+        ${ad.thumbnail
+          ? `<img class="ad-thumb" src="${ad.thumbnail}" alt="${ad.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+             <div class="ad-thumb-placeholder" style="display:none;">🎬</div>`
+          : `<div class="ad-thumb-placeholder">🎬</div>`
+        }
+        <div class="ad-body">
+          <div class="ad-name" title="${ad.name}">${ad.name}</div>
+          <div class="ad-ctr">${ctrBadge(ad.ctr)}</div>
+          <div class="ad-chips">
+            <span class="chip">CPC ${fCLP(ad.cpc)}</span>
+            <span class="chip">CPM ${fCLP(ad.cpm)}</span>
+            <span class="chip">💰 ${fCLP(ad.spend)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+// SHOPIFY SECTION
+// ============================================================
+function renderShopifySection() {
+  const tbody = document.getElementById('products-tbody');
+  tbody.innerHTML = shopify.top_products.map((p, i) => `
+    <tr>
+      <td style="color:var(--text2);font-weight:700;">${i+1}</td>
+      <td style="max-width:280px;" title="${p.name}">${p.name}</td>
+      <td class="td-num" style="font-weight:700;color:var(--purple-l);">${fCLP(p.revenue)}</td>
+      <td class="td-num">${p.qty}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="progress-bar" style="flex:1;">
+            <div class="progress-fill" style="width:${p.pct}%;"></div>
+          </div>
+          <span style="font-size:12px;color:var(--text2);width:38px;text-align:right;">${p.pct}%</span>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ============================================================
+// GA4 TABLE
+// ============================================================
+function renderGA4() {
+  const maxSessions = Math.max(...ga4Channels.map(c => c.sessions));
+
+  function chBadge(ch) {
+    const map = {
+      'Paid Social': 'ch-paid-social',
+      'Organic Search': 'ch-organic-search',
+      'Direct': 'ch-direct',
+      'Organic Social': 'ch-organic-social',
+      'Paid Other': 'ch-paid-other',
+      'Referral': 'ch-referral'
+    };
+    return `<span class="badge ${map[ch] || 'ch-other'}">${ch}</span>`;
+  }
+
+  const tbody = document.getElementById('ga4-tbody');
+  tbody.innerHTML = ga4Channels.map(c => `
+    <tr>
+      <td>${chBadge(c.channel)}</td>
+      <td class="td-num">${fNum(c.sessions)}</td>
+      <td>
+        <div class="session-bar">
+          <div class="session-bar-bg">
+            <div class="session-bar-fill" style="width:${Math.round(c.sessions/maxSessions*100)}%;background:var(--purple);"></div>
+          </div>
+        </div>
+      </td>
+      <td class="td-num">${fNum(c.users)}</td>
+      <td class="td-num">${fNum(c.newUsers)}</td>
+      <td class="td-num">${c.conversions > 0 ? `<span style="color:var(--green);font-weight:700;">${c.conversions}</span>` : '—'}</td>
+      <td class="td-num">${c.revenue > 0 ? `<span style="color:var(--purple-l);font-weight:600;">${fCLP(c.revenue)}</span>` : '—'}</td>
+    </tr>
+  `).join('');
+
+  // Totals
+  const totals = ga4Channels.reduce((acc, c) => {
+    acc.sessions += c.sessions; acc.users += c.users; acc.newUsers += c.newUsers;
+    acc.conversions += c.conversions; acc.revenue += c.revenue;
+    return acc;
+  }, {sessions:0,users:0,newUsers:0,conversions:0,revenue:0});
+
+  document.getElementById('ga4-totals').innerHTML = `
+    <td style="font-weight:800;color:var(--purple-l);">TOTAL</td>
+    <td class="td-num">${fNum(totals.sessions)}</td>
+    <td></td>
+    <td class="td-num">${fNum(totals.users)}</td>
+    <td class="td-num">${fNum(totals.newUsers)}</td>
+    <td class="td-num">${totals.conversions}</td>
+    <td class="td-num">${fCLP(totals.revenue)}</td>
+  `;
+}
+
+// ============================================================
+// INSIGHTS
+// ============================================================
+function renderInsights(realROAS, metaROAS) {
+  const totalNewCust = Object.values(shopify.new_customers_month).reduce((a,b) => a+b, 0);
+  const cac = totalNewCust > 0 ? meta.total_spend / totalNewCust : 0;
+  const avgRev = shopify.rev90 / shopify.orders90;
+  const ltv = avgRev * 3.5; // estimated LTV (3.5x repeat)
+
+  const directConv = ga4Channels.find(c => c.channel === 'Direct');
+  const bestChannel = ga4Channels.reduce((best, c) => (c.conversions > (best.conversions||0) ? c : best), {});
+
+  const insights = [
+    {
+      icon: '🎯',
+      title: 'ROAS Real Excelente',
+      value: realROAS.toFixed(1) + 'x',
+      body: `Por cada $1 invertido en Meta Ads, Shopify genera ${realROAS.toFixed(1)} en revenue. Meta solo rastrea ${Math.round(metaROAS*10)/10}x — instalar Pixel correctamente revelaría el verdadero impacto.`
+    },
+    {
+      icon: '👤',
+      title: 'Costo Adquisición (CAC)',
+      value: fCLP(cac),
+      body: `${totalNewCust} nuevos clientes en 90d · CAC = Gasto Meta / Clientes Nuevos. Con un ticket promedio de ${fCLP(shopify.aov90)}, el retorno sobre CAC es ${(shopify.aov90/cac).toFixed(1)}x.`
+    },
+    {
+      icon: '💎',
+      title: 'LTV Estimado',
+      value: fCLP(ltv),
+      body: `Estimado en 3.5x el ticket promedio (${fCLP(avgRev)}). La base de clientes directos convierte bien — invertir en retención aumentaría el LTV real significativamente.`
+    },
+    {
+      icon: '🔗',
+      title: `Canal Top: ${bestChannel.channel}`,
+      value: bestChannel.conversions + ' conversiones',
+      body: `El tráfico Direct es el que más convierte (25 conv · ${fCLP(3892750)} revenue). Estrategia recomendada: remarketing a audiencias de tráfico directo vía Meta Custom Audiences.`
+    },
+    {
+      icon: '⚡',
+      title: 'Creativos de Alto CTR',
+      value: `${meta.ads[0] ? meta.ads[0].ctr : 0}% CTR máximo`,
+      body: `"${meta.ads[0] ? meta.ads[0].name.slice(0,40) : ''}" lidera con ${meta.ads[0] ? meta.ads[0].ctr : 0}% CTR. Escalar este creativo y crear variantes similares puede reducir el CPC actual de ${fCLP(meta.avg_cpc)}.`
+    }
+  ];
+
+  if (metaROAS < 1) {
+    insights.unshift({
+      icon: '⚠️',
+      title: 'Pixel Meta Desconfigurado — URGENTE',
+      value: 'ROAS Meta: ' + metaROAS.toFixed(2) + 'x',
+      body: 'Meta solo rastrea ' + meta.campaigns.reduce((s,c) => s + c.purchases, 0) + ' compras cuando Shopify registra ' + shopify.orders90 + ' en 90d. Instalar/verificar Pixel y conversions API para tomar decisiones de optimización correctas.'
+    });
+  }
+
+  const grid = document.getElementById('insights-grid');
+  grid.innerHTML = insights.map(ins => `
+    <div class="insight-card">
+      <div class="insight-icon">${ins.icon}</div>
+      <div>
+        <div class="insight-value">${ins.value}</div>
+        <div class="insight-title">${ins.title}</div>
+        <div class="insight-body">${ins.body}</div>
+      </div>
+    </div>
+  `).join('');
+}
 </script>
 </body>
 </html>
