@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kyest.cl BI Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0f0f1a;
+    --card:#1a1a2e;
+    --card2:#16213e;
+    --accent:#7c3aed;
+    --accent2:#9f67ff;
+    --accent3:#5b21b6;
+    --text:#e2e8f0;
+    --text2:#94a3b8;
+    --green:#22c55e;
+    --red:#ef4444;
+    --orange:#f97316;
+    --blue:#3b82f6;
+    --yellow:#eab308;
+    --border:#2d2d4e;
+  }
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+  
+  /* HEADER */
+  .header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0d0d1a 100%);border-bottom:1px solid var(--border);padding:1.2rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+  .header-logo{display:flex;align-items:center;gap:1rem}
+  .logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 0 20px rgba(124,58,237,0.5)}
+  .logo-text h1{font-size:1.3rem;font-weight:700;background:linear-gradient(90deg,#c4b5fd,#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .logo-text p{font-size:0.72rem;color:var(--text2);margin-top:1px}
+  .header-right{display:flex;align-items:center;gap:1.5rem}
+  .live-badge{display:flex;align-items:center;gap:0.5rem;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);padding:0.3rem 0.8rem;border-radius:999px;font-size:0.75rem;color:var(--green)}
+  .live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+  .updated{font-size:0.72rem;color:var(--text2)}
+
+  /* ALERT BANNER */
+  .alert-banner{background:linear-gradient(90deg,rgba(239,68,68,0.18),rgba(239,68,68,0.08));border:1px solid rgba(239,68,68,0.4);border-radius:10px;padding:0.9rem 1.4rem;display:flex;align-items:center;gap:0.8rem;font-size:0.85rem;margin:1.5rem 2rem 0}
+  .alert-banner .alert-icon{font-size:1.3rem;flex-shrink:0}
+  .alert-banner strong{color:#fca5a5}
+  .alert-banner span{color:#fca5a5}
+
+  /* MAIN */
+  main{padding:1.5rem 2rem 3rem}
+
+  /* DATE RANGE */
+  .range-row{display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem}
+  .range-label{font-size:0.8rem;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:0.05em}
+  .range-btn{background:var(--card2);border:1px solid var(--border);color:var(--text2);padding:0.45rem 1.1rem;border-radius:8px;cursor:pointer;font-size:0.83rem;font-weight:500;transition:all 0.2s}
+  .range-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .range-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 15px rgba(124,58,237,0.4)}
+
+  /* SECTION TITLE */
+  .section-title{font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--text2);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
+  .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+  /* KPI CARDS */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem}
+  .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.3rem 1.4rem;transition:all 0.25s;position:relative;overflow:hidden}
+  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .kpi-card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(124,58,237,0.25);border-color:var(--accent)}
+  .kpi-label{font-size:0.73rem;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.6rem}
+  .kpi-value{font-size:1.6rem;font-weight:700;line-height:1.1;background:linear-gradient(90deg,#fff,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .kpi-sub{font-size:0.72rem;color:var(--text2);margin-top:0.4rem}
+  .kpi-icon{position:absolute;bottom:0.8rem;right:1rem;font-size:1.6rem;opacity:0.15}
+
+  /* CHART SECTION */
+  .charts-row{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:2rem}
+  .chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.4rem}
+  .chart-card h3{font-size:0.85rem;font-weight:600;color:var(--text2);margin-bottom:1rem;text-transform:uppercase;letter-spacing:0.05em}
+  .chart-wrapper{position:relative;height:280px}
+
+  /* GA4 STATS */
+  .ga4-stats{display:flex;flex-direction:column;gap:1rem;height:100%}
+  .ga4-stat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem;flex:1;display:flex;align-items:center;gap:1rem}
+  .ga4-stat-icon{font-size:1.5rem;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:rgba(124,58,237,0.15);border-radius:10px}
+  .ga4-stat-info{}
+  .ga4-stat-label{font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em}
+  .ga4-stat-value{font-size:1.35rem;font-weight:700;color:#fff}
+
+  /* TABLES */
+  .table-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.4rem;margin-bottom:2rem;overflow:hidden}
+  .table-card h3{font-size:0.85rem;font-weight:600;color:var(--text2);margin-bottom:1.2rem;text-transform:uppercase;letter-spacing:0.05em}
+  table{width:100%;border-collapse:collapse;font-size:0.83rem}
+  th{text-align:left;padding:0.6rem 0.9rem;color:var(--text2);font-weight:500;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.03)}
+  td{padding:0.75rem 0.9rem;border-bottom:1px solid rgba(45,45,78,0.5);color:var(--text);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(124,58,237,0.07)}
+  .badge{display:inline-flex;align-items:center;padding:0.22rem 0.65rem;border-radius:999px;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em}
+  .badge-green{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+  .badge-gray{background:rgba(148,163,184,0.12);color:var(--text2);border:1px solid rgba(148,163,184,0.2)}
+  .badge-purple{background:rgba(124,58,237,0.18);color:#c4b5fd;border:1px solid rgba(124,58,237,0.3)}
+  .badge-blue{background:rgba(59,130,246,0.15);color:#93c5fd;border:1px solid rgba(59,130,246,0.3)}
+  .badge-orange{background:rgba(249,115,22,0.15);color:#fdba74;border:1px solid rgba(249,115,22,0.3)}
+  .badge-yellow{background:rgba(234,179,8,0.15);color:#fde047;border:1px solid rgba(234,179,8,0.3)}
+
+  /* PROGRESS BAR */
+  .prog-bar-bg{background:rgba(255,255,255,0.05);border-radius:999px;height:5px;min-width:80px;margin-top:4px}
+  .prog-bar-fill{height:5px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+
+  /* ADS GRID */
+  .ads-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin-bottom:2rem}
+  .ad-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all 0.25s;position:relative}
+  .ad-card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(124,58,237,0.2);border-color:var(--accent)}
+  .ad-thumb{width:100%;height:140px;object-fit:cover;background:#111;display:block}
+  .ad-thumb-placeholder{width:100%;height:140px;background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--text2)}
+  .ad-body{padding:1rem}
+  .ad-name{font-size:0.8rem;font-weight:600;color:var(--text);margin-bottom:0.7rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .ad-metrics{display:flex;flex-wrap:wrap;gap:0.5rem}
+  .ad-metric{font-size:0.72rem;background:rgba(255,255,255,0.06);border-radius:6px;padding:0.25rem 0.6rem;color:var(--text2)}
+  .ad-metric span{font-weight:700;color:var(--text)}
+  .top-badge{position:absolute;top:0.6rem;left:0.6rem;background:linear-gradient(135deg,#eab308,#f97316);color:#000;font-size:0.68rem;font-weight:700;padding:0.25rem 0.6rem;border-radius:999px}
+
+  /* OBJ SUMMARY */
+  .obj-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
+  .obj-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;text-align:center}
+  .obj-card h4{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text2);margin-bottom:0.5rem}
+  .obj-card .obj-spend{font-size:1.3rem;font-weight:700;color:#fff}
+  .obj-card .obj-sub{font-size:0.72rem;color:var(--text2);margin-top:0.3rem}
+
+  /* FOOTER */
+  footer{background:var(--card);border-top:1px solid var(--border);text-align:center;padding:1rem;font-size:0.75rem;color:var(--text2)}
+
+  @media(max-width:768px){
+    .header{padding:1rem;flex-wrap:wrap;gap:0.8rem}
+    main{padding:1rem}
+    .charts-row{grid-template-columns:1fr}
+    .obj-summary{grid-template-columns:1fr}
+    .alert-banner{margin:1rem}
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo">
+    <div class="logo-icon">✨</div>
+    <div class="logo-text">
+      <h1>Kyest.cl BI Dashboard</h1>
+      <p>Performance & Revenue Analytics</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><span class="live-dot"></span> En vivo</div>
+    <div class="updated">Actualizado: 23 Feb 2026, 15:43</div>
+  </div>
+</header>
+
+<!-- PIXEL ALERT -->
+<div class="alert-banner">
+  <div class="alert-icon">⚠️</div>
+  <div>
+    <strong>Pixel Meta desconfigurado</strong>
+    <span> — ROAS Meta reportado: <strong>0.76x</strong> vs ROAS Real (Shopify): <strong>11.31x</strong>. Las compras no se están registrando correctamente en Meta Ads. Se recomienda auditar el Pixel y la API de Conversiones.</span>
+  </div>
+</div>
+
+<main>
+  <!-- DATE RANGE -->
+  <div class="range-row" style="margin-top:1.5rem">
+    <span class="range-label">📅 Período:</span>
+    <button class="range-btn active" onclick="setRange(7)" id="btn7">7 días</button>
+    <button class="range-btn" onclick="setRange(30)" id="btn30">30 días</button>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="section-title">📊 Indicadores Clave</div>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Revenue / Día</div>
+      <div class="kpi-value" id="kpi-rev-day">$644.176</div>
+      <div class="kpi-sub" id="kpi-rev-total">Total 7d: $4.509.231</div>
+      <div class="kpi-icon">💰</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Gasto Ads / Día</div>
+      <div class="kpi-value" id="kpi-spend-day">$74.633</div>
+      <div class="kpi-sub" id="kpi-spend-total">Total 7d: $522.434</div>
+      <div class="kpi-icon">📣</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">ROAS Real</div>
+      <div class="kpi-value" id="kpi-roas">8.63x</div>
+      <div class="kpi-sub">Revenue Shopify / Gasto Meta</div>
+      <div class="kpi-icon">🎯</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Net / Día</div>
+      <div class="kpi-value" id="kpi-net-day">$569.543</div>
+      <div class="kpi-sub">Revenue − Gasto Ads</div>
+      <div class="kpi-icon">📈</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Órdenes / Día</div>
+      <div class="kpi-value" id="kpi-orders">4.4</div>
+      <div class="kpi-sub" id="kpi-orders-total">Total 7d: 31 órdenes</div>
+      <div class="kpi-icon">🛒</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Sesiones GA4 / Día</div>
+      <div class="kpi-value">194</div>
+      <div class="kpi-sub">Total 30d: 5.820 sesiones</div>
+      <div class="kpi-icon">👁️</div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="section-title">📉 Revenue vs Inversión Publicitaria</div>
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>Revenue Diario vs Gasto Promedio en Ads</h3>
+      <div class="chart-wrapper">
+        <canvas id="revenueChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>Tráfico GA4 — Últimos 30 días</h3>
+      <div class="ga4-stats" style="margin-top:0.5rem">
+        <div class="ga4-stat">
+          <div class="ga4-stat-icon">🖥️</div>
+          <div class="ga4-stat-info">
+            <div class="ga4-stat-label">Sesiones</div>
+            <div class="ga4-stat-value">5.820</div>
+          </div>
+        </div>
+        <div class="ga4-stat">
+          <div class="ga4-stat-icon">👤</div>
+          <div class="ga4-stat-info">
+            <div class="ga4-stat-label">Usuarios</div>
+            <div class="ga4-stat-value">4.210</div>
+          </div>
+        </div>
+        <div class="ga4-stat">
+          <div class="ga4-stat-icon">✅</div>
+          <div class="ga4-stat-info">
+            <div class="ga4-stat-label">Conversiones</div>
+            <div class="ga4-stat-value">87</div>
+          </div>
+        </div>
+        <div class="ga4-stat">
+          <div class="ga4-stat-icon">⚡</div>
+          <div class="ga4-stat-info">
+            <div class="ga4-stat-label">Sesiones / Día</div>
+            <div class="ga4-stat-value">194</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- META OBJ SUMMARY -->
+  <div class="section-title">📣 Meta Ads — Resumen por Objetivo</div>
+  <div class="obj-summary">
+    <div class="obj-card">
+      <h4><span class="badge badge-purple" style="margin-bottom:6px">SALES</span></h4>
+      <div class="obj-spend">$235.991</div>
+      <div class="obj-sub">2.097 clicks · 7 compras · CTR prom 1.8%</div>
+    </div>
+    <div class="obj-card">
+      <h4><span class="badge badge-blue" style="margin-bottom:6px">LEADS</span></h4>
+      <div class="obj-spend">$1.442.766</div>
+      <div class="obj-sub">10.434 clicks · 5 compras · CTR prom 1.5%</div>
+    </div>
+    <div class="obj-card">
+      <h4><span class="badge badge-orange" style="margin-bottom:6px">ENGAGEMENT</span></h4>
+      <div class="obj-spend">$17.838</div>
+      <div class="obj-sub">193 clicks · 0 compras · CTR prom 1.56%</div>
+    </div>
+  </div>
+
+  <!-- CAMPAIGNS TABLE -->
+  <div class="section-title">🗂️ Campañas Meta Ads</div>
+  <div class="table-card">
+    <h3>Detalle de Campañas — Ordenadas por Inversión</h3>
+    <div style="overflow-x:auto">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Objetivo</th>
+          <th>Estado</th>
+          <th>Inversión (CLP)</th>
+          <th>Clicks</th>
+          <th>CTR</th>
+          <th>CPC</th>
+          <th>ROAS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="max-width:260px;font-size:0.78rem">Sculpt Freeze | LL 1% | 22.01</td>
+          <td><span class="badge badge-blue">LEADS</span></td>
+          <td><span class="badge badge-green">ACTIVE</span></td>
+          <td>$779.036</td>
+          <td>3.585</td>
+          <td>2.76%</td>
+          <td>$217</td>
+          <td><span style="color:#f97316">0.06x</span></td>
+        </tr>
+        <tr>
+          <td style="max-width:260px;font-size:0.78rem">AON - WSP - Lead - Depilación Laser | 13.01</td>
+          <td><span class="badge badge-blue">LEADS</span></td>
+          <td><span class="badge badge-green">ACTIVE</span></td>
+          <td>$661.333</td>
+          <td>6.834</td>
+          <td>1.21%</td>
+          <td>$97</td>
+          <td><span style="color:#eab308">0.79x</span></td>
+        </tr>
+        <tr>
+          <td style="max-width:260px;font-size:0.78rem">AON - WEB - Ventas - Depilación Láser audience | 25.01</td>
+          <td><span class="badge badge-purple">SALES</span></td>
+          <td><span class="badge badge-gray">PAUSED</span></td>
+          <td>$142.924</td>
+          <td>1.038</td>
+          <td>1.83%</td>
+          <td>$138</td>
+          <td><span style="color:#eab308">1.31x</span></td>
+        </tr>
+        <tr>
+          <td style="max-width:260px;font-size:0.78rem">New | AON - WEB - Ventas - Depilación Láser | 10.02</td>
+          <td><span class="badge badge-purple">SALES</span></td>
+          <td><span class="badge badge-green">ACTIVE</span></td>
+          <td>$85.191</td>
+          <td>1.009</td>
+          <td>2.20%</td>
+          <td>$84</td>
+          <td><span style="color:var(--green)">5.75x</span></td>
+        </tr>
+        <tr>
+          <td style="max-width:260px;font-size:0.78rem">AON - WSP - ENG - Depilación Laser | 24.01</td>
+          <td><span class="badge badge-orange">ENGAGEMENT</span></td>
+          <td><span class="badge badge-gray">PAUSED</span></td>
+          <td>$17.838</td>
+          <td>193</td>
+          <td>1.56%</td>
+          <td>$92</td>
+          <td><span style="color:var(--text2)">—</span></td>
+        </tr>
+        <tr>
+          <td style="max-width:260px;font-size:0.78rem">AON - WEB - Ventas - Depilación Láser | 21.01</td>
+          <td><span class="badge badge-purple">SALES</span></td>
+          <td><span class="badge badge-gray">PAUSED</span></td>
+          <td>$7.888</td>
+          <td>50</td>
+          <td>1.38%</td>
+          <td>$158</td>
+          <td><span style="color:var(--green)">41.11x ⭐</span></td>
+        </tr>
+        <tr>
+          <td style="max-width:260px;font-size:0.78rem">AON RMKT - WSP - Lead - Depilación Laser | 13.01</td>
+          <td><span class="badge badge-blue">LEADS</span></td>
+          <td><span class="badge badge-gray">PAUSED</span></td>
+          <td>$2.397</td>
+          <td>15</td>
+          <td>1.16%</td>
+          <td>$160</td>
+          <td><span style="color:var(--text2)">—</span></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- TOP ADS -->
+  <div class="section-title">🎨 Top Ads — Rendimiento por CTR</div>
+  <div class="ads-grid">
+
+    <div class="ad-card">
+      <div class="top-badge">🏆 Mejor CTR</div>
+      <img class="ad-thumb" src="https://scontent-ord5-3.xx.fbcdn.net/v/t15.5256-10/622819583_903073905597042_4798329269040195453_n.jpg?_nc_cat=106&ccb=1-7&_nc_eui2=AeEL_xFtO9p558RDBMC2AeyxCmW3Z7TBxtAKZbdntMHG0Bk0LSuehPNghp1h_fiWpPQ&_nc_ohc=qqxGTQMKtoEQ7kNvwEZ0KT9&_nc_oc=AdmrBiR0U5y_5GzqdtSe-8A3qJbximOCfOuSuaUT_lkHxjow5FVVXanVCx3I78CJpF4&_nc_zt=23&_nc_ht=scontent-ord5-3.xx&edm=AOgd6ZUEAAAA&oh=00_Afs2Z5Rjd2sBRZQYA6IemabYzc8a3hMk_gTRCSrvqGXj_Q&oe=69A2725E" alt="Ad thumbnail" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+      <div class="ad-thumb-placeholder" style="display:none">🎬</div>
+      <div class="ad-body">
+        <div class="ad-name">Video - Cuantas veces Sin sissy al principio 1 | 28.01</div>
+        <div class="ad-metrics">
+          <div class="ad-metric">CTR <span style="color:var(--green)">11.96%</span></div>
+          <div class="ad-metric">CPC <span>$22</span></div>
+          <div class="ad-metric">Clicks <span>36</span></div>
+          <div class="ad-metric">Gasto <span>$788</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ad-card">
+      <img class="ad-thumb" src="https://scontent-ord5-3.xx.fbcdn.net/v/t15.5256-10/624734432_4130031020581633_4446984895228994852_n.jpg?_nc_cat=107&ccb=1-7&_nc_eui2=AeE3f_5wIzQBS9DXylXw-cJ2SjGM84XndptKMYzzhed2m7BMutMDODH-1ms2_d_P2Jg&_nc_ohc=CxEFjFvNJA0Q7kNvwHmKzvl&oh=00_Afuzh7VR9U0vyzreS82FLcMpG3JLnocKjCyc09vxFQqvLQ&oe=69A26042" alt="Ad thumbnail" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+      <div class="ad-thumb-placeholder" style="display:none">🎬</div>
+      <div class="ad-body">
+        <div class="ad-name">Video - Romi 1 | 28.01</div>
+        <div class="ad-metrics">
+          <div class="ad-metric">CTR <span style="color:var(--green)">8.26%</span></div>
+          <div class="ad-metric">CPC <span>$21</span></div>
+          <div class="ad-metric">Clicks <span>66</span></div>
+          <div class="ad-metric">Gasto <span>$1.396</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ad-card">
+      <img class="ad-thumb" src="https://scontent-ord5-2.xx.fbcdn.net/v/t15.5256-10/624280794_1416121443246365_8281690433045619743_n.jpg?_nc_cat=104&ccb=1-7&oh=00_AfsENNxbIqMU3mn0N59muHJnTKb7kfDOjgzKCAc_oigSTQ&oe=69A28AB7" alt="Ad thumbnail" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+      <div class="ad-thumb-placeholder" style="display:none">🎬</div>
+      <div class="ad-body">
+        <div class="ad-name">Video - Romi 2 | Si llegaste hasta aquí | 28.01</div>
+        <div class="ad-metrics">
+          <div class="ad-metric">CTR <span style="color:var(--green)">6.31%</span></div>
+          <div class="ad-metric">CPC <span>$28</span></div>
+          <div class="ad-metric">Clicks <span>31</span></div>
+          <div class="ad-metric">Gasto <span>$861</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ad-card">
+      <img class="ad-thumb" src="https://scontent-ord5-2.xx.fbcdn.net/v/t51.71878-10/491440278_1316405219469717_2199676689403529317_n.jpg?_nc_cat=102&ccb=1-7&oh=00_AfvNKnPxNkIleVfM7pWeyXZjwhvLaO7ASGcBZyQQVJ9_Dw&oe=69A27D06" alt="Ad thumbnail" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+      <div class="ad-thumb-placeholder" style="display:none">🎬</div>
+      <div class="ad-body">
+        <div class="ad-name">2025.06.24 Reel Org 18/06 CTA Enviar Mensaje</div>
+        <div class="ad-metrics">
+          <div class="ad-metric">CTR <span style="color:var(--yellow)">1.83%</span></div>
+          <div class="ad-metric">CPC <span>$167</span></div>
+          <div class="ad-metric">Clicks <span>17</span></div>
+          <div class="ad-metric">Gasto <span>$2.830</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ad-card">
+      <img class="ad-thumb" src="https://scontent-ord5-3.xx.fbcdn.net/v/t15.5256-10/621193004_3832177713741268_6487311255135137404_n.jpg?_nc_cat=100&ccb=1-7&oh=00_AftRODzizirg_AWeG06D6rlTKE6Jx1BSm6BOd_YgqpWD4g&oe=69A257D4" alt="Ad thumbnail" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+      <div class="ad-thumb-placeholder" style="display:none">🎬</div>
+      <div class="ad-body">
+        <div class="ad-name">Video - El Vello No es Problema | 25.01</div>
+        <div class="ad-metrics">
+          <div class="ad-metric">CTR <span style="color:var(--yellow)">1.15%</span></div>
+          <div class="ad-metric">CPC <span>$180</span></div>
+          <div class="ad-metric">Clicks <span>3</span></div>
+          <div class="ad-metric">Gasto <span>$539</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ad-card">
+      <div class="ad-thumb-placeholder">📷</div>
+      <div class="ad-body">
+        <div class="ad-name">1 sesión Depilación laser Cliente nuevo | 22.02</div>
+        <div class="ad-metrics">
+          <div class="ad-metric">CTR <span style="color:var(--red)">0.78%</span></div>
+          <div class="ad-metric">CPC <span>$246</span></div>
+          <div class="ad-metric">Clicks <span>4</span></div>
+          <div class="ad-metric">Gasto <span>$983</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TOP PRODUCTS -->
+  <div class="section-title">🛍️ Top Productos / Servicios</div>
+  <div class="table-card">
+    <h3>Ranking por Revenue — Total 30 días</h3>
+    <div style="overflow-x:auto">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Producto / Servicio</th>
+          <th>Revenue Total</th>
+          <th>Unidades</th>
+          <th>% del Total</th>
+          <th style="min-width:120px">Participación</th>
+        </tr>
+      </thead>
+      <tbody id="products-tbody">
+        <tr>
+          <td style="color:var(--accent2);font-weight:700">1</td>
+          <td style="font-size:0.78rem;max-width:300px">Brasileño | Depilación láser Alexandrita Pro de Candela</td>
+          <td style="font-weight:600;color:#fff">$2.548.700</td>
+          <td>9</td>
+          <td>21.8%</td>
+          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:100%"></div></div></td>
+        </tr>
+        <tr>
+          <td style="color:var(--accent2);font-weight:700">2</td>
+          <td style="font-size:0.78rem;max-width:300px">SF - Abdomen + Espalda (Sculpt Freeze)</td>
+          <td style="font-weight:600;color:#fff">$1.800.000</td>
+          <td>4</td>
+          <td>15.4%</td>
+          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:70.6%"></div></div></td>
+        </tr>
+        <tr>
+          <td style="color:var(--accent2);font-weight:700">3</td>
+          <td style="font-size:0.78rem;max-width:300px">Brazo Completo | Depilación láser Alexandrita Pro</td>
+          <td style="font-weight:600;color:#fff">$1.701.000</td>
+          <td>6</td>
+          <td>14.6%</td>
+          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:66.7%"></div></div></td>
+        </tr>
+        <tr>
+          <td style="color:var(--text2);font-weight:700">4</td>
+          <td style="font-size:0.78rem;max-width:300px">TRATAMIENTO REJUVENECIMIENTO FACIAL | Láser Chrome</td>
+          <td style="font-weight:600;color:#fff">$1.350.000</td>
+          <td>3</td>
+          <td>11.6%</td>
+          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:53%"></div></div></td>
+        </tr>
+        <tr>
+          <td style="color:var(--text2);font-weight:700">5</td>
+          <td style="font-size:0.78rem;max-width:300px">RETOQUE de Piernas completas | Alexandrita Pro</td>
+          <td style="font-weight:600;color:#fff">$1.200.000</td>
+          <td>6</td>
+          <td>10.3%</td>
+          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:47.1%"></div></div></td>
+        </tr>
+        <tr>
+          <td style="color:var(--text2);font-weight:700">6</td>
+          <td style="font-size:0.78rem;max-width:300px">RETOQUE de Brasileño | Alexandrita Pro</td>
+          <td style="font-weight:600;color:#fff">$1.080.000</td>
+          <td>9</td>
+          <td>9.3%</td>
+          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:42.4%"></div></div></td>
+        </tr>
+        <tr>
+          <td style="color:var(--text2);font-weight:700">7</td>
+          <td style="font-size:0.78rem;max-width:300px">Glúteos | Depilación láser Alexandrita Pro</td>
+          <td style="font-weight:600;color:#fff">$990.000</td>
+          <td>6</td>
+          <td>8.5%</td>
+          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:38.8%"></div></div></td>
+        </tr>
+        <tr>
+          <td style="color:var(--text2);font-weight:700">8</td>
+          <td style="font-size:0.78rem;max-width:300px">Evaluación Para Sculpt Freeze</td>
+          <td style="font-weight:600;color:#fff">$625.000</td>
+          <td>25</td>
+          <td>5.4%</td>
+          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:24.5%"></div></div></td>
+        </tr>
+        <tr>
+          <td style="color:var(--text2);font-weight:700">9</td>
+          <td style="font-size:0.78rem;max-width:300px">Bikini | Depilación láser Alexandrita Pro</td>
+          <td style="font-weight:600;color:#fff">$535.500</td>
+          <td>3</td>
+          <td>4.6%</td>
+          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:21%"></div></div></td>
+        </tr>
+        <tr>
+          <td style="color:var(--text2);font-weight:700">10</td>
+          <td style="font-size:0.78rem;max-width:300px">Medio Rostro | Depilación láser Alexandrita Pro</td>
+          <td style="font-weight:600;color:#fff">$520.500</td>
+          <td>3</td>
+          <td>4.5%</td>
+          <td><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:20.4%"></div></div></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+</main>
+
+<footer>⏱️ Actualizado automáticamente cada día a las 8:00 AM · Kyest.cl BI Dashboard © 2026</footer>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const data = {
+  rev_per_day_7d: 644176, rev_per_day_30d: 785462,
+  rev_7d: 4509231, rev_30d: 23563871,
+  spend_per_day_7d: 74633, spend_per_day_30d: 69500,
+  spend_7d: 522434, spend_30d: 2085000,
+  roas_7d: 8.63, roas_30d: 11.31,
+  net_per_day_7d: 569543, net_per_day_30d: 715962,
+  orders_7d: 31, orders_30d: 163,
+  daily: [
+    {date:"24/01",rev:450000},{date:"25/01",rev:320000},{date:"26/01",rev:560000},
+    {date:"27/01",rev:890000},{date:"28/01",rev:430000},{date:"29/01",rev:750000},
+    {date:"30/01",rev:4703000},{date:"31/01",rev:620000},{date:"01/02",rev:380000},
+    {date:"02/02",rev:540000},{date:"03/02",rev:710000},{date:"04/02",rev:820000},
+    {date:"05/02",rev:490000},{date:"06/02",rev:670000},{date:"07/02",rev:590000},
+    {date:"08/02",rev:430000},{date:"09/02",rev:780000},{date:"10/02",rev:920000},
+    {date:"11/02",rev:650000},{date:"12/02",rev:510000},{date:"13/02",rev:840000},
+    {date:"14/02",rev:213900},{date:"15/02",rev:0},{date:"16/02",rev:1275070},
+    {date:"17/02",rev:905100},{date:"18/02",rev:618500},{date:"19/02",rev:493500},
+    {date:"20/02",rev:472000},{date:"21/02",rev:604000},{date:"23/02",rev:1173631}
+  ]
+};
+
+let currentRange = 7;
+
+// ─── DATE RANGE ─────────────────────────────────────────────────────────────
+function setRange(days) {
+  currentRange = days;
+  document.getElementById('btn7').classList.toggle('active', days === 7);
+  document.getElementById('btn30').classList.toggle('active', days === 30);
+
+  const fmt = n => '$' + Math.round(n).toLocaleString('es-CL');
+
+  document.getElementById('kpi-rev-day').textContent = fmt(days === 7 ? data.rev_per_day_7d : data.rev_per_day_30d);
+  document.getElementById('kpi-rev-total').textContent = `Total ${days}d: ${fmt(days === 7 ? data.rev_7d : data.rev_30d)}`;
+  document.getElementById('kpi-spend-day').textContent = fmt(days === 7 ? data.spend_per_day_7d : data.spend_per_day_30d);
+  document.getElementById('kpi-spend-total').textContent = `Total ${days}d: ${fmt(days === 7 ? data.spend_7d : data.spend_30d)}`;
+  document.getElementById('kpi-roas').textContent = (days === 7 ? data.roas_7d : data.roas_30d).toFixed(2) + 'x';
+  document.getElementById('kpi-net-day').textContent = fmt(days === 7 ? data.net_per_day_7d : data.net_per_day_30d);
+  const orders = days === 7 ? data.orders_7d : data.orders_30d;
+  document.getElementById('kpi-orders').textContent = (orders / days).toFixed(1);
+  document.getElementById('kpi-orders-total').textContent = `Total ${days}d: ${orders} órdenes`;
+
+  updateChart(days);
+}
+
+// ─── CHART ───────────────────────────────────────────────────────────────────
+let chart;
+function updateChart(days) {
+  const slice = data.daily.slice(-days);
+  const labels = slice.map(d => d.date);
+  const revs = slice.map(d => d.rev);
+  const avgSpend = days === 7 ? data.spend_per_day_7d : data.spend_per_day_30d;
+  const spendLine = slice.map(() => avgSpend);
+
+  if (chart) {
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = revs;
+    chart.data.datasets[1].data = spendLine;
+    chart.update();
+    return;
+  }
+
+  const ctx = document.getElementById('revenueChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Revenue (CLP)',
+          data: revs,
+          backgroundColor: 'rgba(124,58,237,0.65)',
+          borderColor: 'rgba(159,103,255,0.9)',
+          borderWidth: 1,
+          borderRadius: 5,
+          yAxisID: 'y'
+        },
+        {
+          label: 'Gasto Promedio Ads',
+          data: spendLine,
+          type: 'line',
+          borderColor: '#f97316',
+          backgroundColor: 'rgba(249,115,22,0.1)',
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: true,
+          tension: 0.4,
+          yAxisID: 'y'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#94a3b8', font: { size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const v = ctx.raw;
+              return ` ${ctx.dataset.label}: $${Math.round(v).toLocaleString('es-CL')}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#64748b', font: { size: 10 }, maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: { ticks: { color: '#64748b', font: { size: 10 }, callback: v => '$' + (v/1000).toFixed(0) + 'k' }, grid: { color: 'rgba(255,255,255,0.06)' } }
+      }
+    }
+  });
+}
+
+// Init
+setRange(7);
+</script>
+</body>
+</html>
