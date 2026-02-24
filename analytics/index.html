@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kyest BI — Analytics Report</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0C1117;color:#E6EDF3;display:flex;min-height:100vh}
+.sidebar{width:220px;background:#161B22;border-right:1px solid #30363D;position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;padding:0;overflow-y:auto;z-index:100}
+.sidebar-logo{padding:20px 16px 16px;border-bottom:1px solid #30363D}
+.sidebar-logo a{color:#E6EDF3;text-decoration:none;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.sidebar-logo span{font-size:20px}
+.sidebar nav{padding:12px 0;flex:1}
+.sidebar nav a{display:flex;align-items:center;gap:10px;padding:10px 16px;color:#8B949E;text-decoration:none;font-size:14px;transition:all .15s;border-left:2px solid transparent}
+.sidebar nav a:hover,.sidebar nav a.active{color:#E6EDF3;background:#1C2333;border-left-color:#3478F6}
+.sidebar nav a .icon{font-size:16px;width:20px;text-align:center}
+.main{margin-left:220px;flex:1;padding:32px;min-width:0}
+.page-header{margin-bottom:28px}
+.page-header h1{font-size:24px;font-weight:700;color:#E6EDF3;margin-bottom:4px}
+.page-header p{color:#8B949E;font-size:14px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px}
+.kpi-card{background:#161B22;border:1px solid #30363D;border-radius:10px;padding:20px}
+.kpi-card .label{color:#8B949E;font-size:12px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.kpi-card .value{color:#E6EDF3;font-size:22px;font-weight:700;margin-bottom:4px}
+.kpi-card .sub{color:#8B949E;font-size:12px}
+.kpi-card.blue{border-top:3px solid #3478F6}
+.kpi-card.green{border-top:3px solid #238636}
+.kpi-card.teal{border-top:3px solid #0D9488}
+.kpi-card.yellow{border-top:3px solid #D29922}
+.kpi-card.red{border-top:3px solid #DA3633}
+.chart-card{background:#161B22;border:1px solid #30363D;border-radius:10px;padding:24px;margin-bottom:24px}
+.chart-card h3{font-size:15px;font-weight:600;margin-bottom:16px;color:#E6EDF3}
+.chart-wrap{position:relative;height:280px}
+.tabs{display:flex;border-bottom:1px solid #30363D;margin-bottom:24px;flex-wrap:wrap}
+.tab-btn{padding:10px 20px;background:none;border:none;color:#8B949E;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab-btn:hover{color:#E6EDF3}
+.tab-btn.active{color:#3478F6;border-bottom-color:#3478F6}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.table-wrap{background:#161B22;border:1px solid #30363D;border-radius:10px;overflow:hidden;margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:#1C2333;color:#8B949E;font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:.5px;padding:11px 14px;text-align:left;cursor:pointer;user-select:none}
+thead th:hover{color:#E6EDF3}
+thead th.sort-asc::after{content:" ↑"}
+thead th.sort-desc::after{content:" ↓"}
+tbody tr{border-top:1px solid #30363D;transition:background .1s}
+tbody tr:hover{background:#1C2333}
+tbody td{padding:10px 14px;color:#E6EDF3}
+.progress-bar{height:6px;background:#1C2333;border-radius:3px;overflow:hidden;margin-top:4px}
+.progress-bar-fill{height:100%;background:#3478F6;border-radius:3px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.insight-card{background:#161B22;border:1px solid #30363D;border-radius:10px;padding:20px;margin-bottom:16px}
+.insight-card h4{font-size:14px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.insight-card h4.green{color:#238636}
+.insight-card h4.yellow{color:#D29922}
+.insight-card h4.red{color:#DA3633}
+.insight-card h4.blue{color:#3478F6}
+.insight-card ul{list-style:none;padding:0}
+.insight-card ul li{color:#8B949E;font-size:13px;padding:6px 0;border-bottom:1px solid #1C2333;display:flex;justify-content:space-between;gap:12px}
+.insight-card ul li:last-child{border-bottom:none}
+.insight-card ul li span{color:#E6EDF3;font-weight:600}
+.device-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.device-card{background:#161B22;border:1px solid #30363D;border-radius:10px;padding:20px;text-align:center}
+.device-card .icon{font-size:32px;margin-bottom:8px}
+.device-card .name{color:#8B949E;font-size:12px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.device-card .val{font-size:28px;font-weight:700;color:#E6EDF3}
+.device-card .share{color:#3478F6;font-size:14px;margin-top:4px}
+footer{margin-top:40px;padding-top:20px;border-top:1px solid #30363D;color:#8B949E;font-size:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+footer a{color:#3478F6;text-decoration:none}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.two-col{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <a href="https://aictmopenclaw-a11y.github.io/kyest-dashboard/">
+      <span>⚡</span> Kyest BI
+    </a>
+  </div>
+  <nav>
+    <a href="#" class="active tab-link" data-tab="overview"><span class="icon">📊</span> Overview</a>
+    <a href="#" class="tab-link" data-tab="canales"><span class="icon">📡</span> Canales</a>
+    <a href="#" class="tab-link" data-tab="dispositivos"><span class="icon">📱</span> Dispositivos</a>
+    <a href="#" class="tab-link" data-tab="insights"><span class="icon">💡</span> Insights</a>
+  </nav>
+</div>
+<div class="main">
+  <div class="page-header">
+    <h1>📈 Google Analytics 4 — Reporte de Tráfico</h1>
+    <p>Análisis de sesiones, canales y conversiones · Datos al 24/02/2026 00:16</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="canales">Canales</button>
+    <button class="tab-btn" data-tab="dispositivos">Dispositivos</button>
+    <button class="tab-btn" data-tab="insights">Insights</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="tab-panel active" id="tab-overview">
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="label">Sesiones Totales</div>
+        <div class="value">7,270</div>
+        <div class="sub">visitas al sitio</div>
+      </div>
+      <div class="kpi-card teal">
+        <div class="label">Usuarios</div>
+        <div class="value">5,332</div>
+        <div class="sub">5,086 nuevos</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="label">Conversiones</div>
+        <div class="value">39</div>
+        <div class="sub">Tasa: 0.54%</div>
+      </div>
+      <div class="kpi-card yellow">
+        <div class="label">Tasa de Rebote</div>
+        <div class="value">55.0%</div>
+        <div class="sub">promedio</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="label">Ingresos GA4</div>
+        <div class="value">$5.249.840</div>
+        <div class="sub">reportados en GA4</div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>📅 Tendencia Mensual de Sesiones y Usuarios</h3>
+      <div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>🎯 Conversiones Mensuales</h3>
+      <div class="chart-wrap" style="height:200px"><canvas id="convChart"></canvas></div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="label">Usuarios Nuevos</div>
+        <div class="value">5,086</div>
+        <div class="sub">95.4% del total</div>
+      </div>
+      <div class="kpi-card teal">
+        <div class="label">Usuarios Recurrentes</div>
+        <div class="value">246</div>
+        <div class="sub">4.6% del total</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="label">Ingresos GA4</div>
+        <div class="value">$5.249.840</div>
+        <div class="sub">reportados en GA4</div>
+      </div>
+      <div class="kpi-card yellow">
+        <div class="label">Tasa Conv. General</div>
+        <div class="value">0.54%</div>
+        <div class="sub">39 conv. / 7,270 sesiones</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Mes</th>
+            <th>Sesiones</th>
+            <th>Usuarios</th>
+            <th>Nuevos</th>
+            <th>Conversiones</th>
+            <th>Tasa Conv.</th>
+            <th>Tasa Rebote</th>
+            <th>Ingresos</th>
+          </tr>
+        </thead>
+        <tbody id="monthlyTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CANALES -->
+  <div class="tab-panel" id="tab-canales">
+    <div class="two-col">
+      <div class="chart-card">
+        <h3>📡 Sesiones por Canal</h3>
+        <div class="chart-wrap"><canvas id="channelSessionsChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>🎯 Tasa de Conversión por Canal</h3>
+        <div class="chart-wrap"><canvas id="channelConvChart"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>📈 Top 3 Canales — Tendencia Mensual de Sesiones</h3>
+      <div class="chart-wrap"><canvas id="channelTrendChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>💬 Tasa de Engagement por Canal</h3>
+      <div class="chart-wrap" style="height:220px"><canvas id="engagementChart"></canvas></div>
+    </div>
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:16px;color:#E6EDF3">📊 Detalle por Canal</h3>
+    <div id="channelCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px"></div>
+    <div class="chart-card">
+      <h3>📅 Sesiones por Canal y Mes (Detalle Cruzado)</h3>
+      <div class="table-wrap" style="margin-top:16px">
+        <table id="crossTable">
+          <thead id="crossHead"></thead>
+          <tbody id="crossBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="channelsTable">
+        <thead>
+          <tr>
+            <th onclick="sortCh(0)">Canal</th>
+            <th onclick="sortCh(1)">Sesiones</th>
+            <th onclick="sortCh(2)">Usuarios</th>
+            <th onclick="sortCh(3)">Usuarios Nuevos</th>
+            <th onclick="sortCh(4)">Conversiones</th>
+            <th onclick="sortCh(5)">Tasa Conv.</th>
+            <th onclick="sortCh(6)">Rebote</th>
+            <th onclick="sortCh(7)">Ingresos</th>
+          </tr>
+        </thead>
+        <tbody id="channelsTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MONTHLY DETAIL (extra panel in canales) -->
+
+  <!-- DISPOSITIVOS POR CANAL extra tab -->
+  <div class="tab-panel" id="tab-dispositivos_canal" style="display:none"></div>
+
+  <!-- DISPOSITIVOS -->
+  <div class="tab-panel" id="tab-dispositivos">
+    <div class="device-grid" id="deviceCards"></div>
+    <div class="two-col">
+      <div class="chart-card">
+        <h3>📱 Distribución por Dispositivo (Sesiones)</h3>
+        <div class="chart-wrap"><canvas id="devicePieChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>🎯 Conversiones por Dispositivo</h3>
+        <div class="chart-wrap"><canvas id="deviceConvChart"></canvas></div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Dispositivo</th>
+            <th>Sesiones</th>
+            <th>Usuarios</th>
+            <th>Conversiones</th>
+            <th>Tasa Conv.</th>
+            <th>Participación</th>
+          </tr>
+        </thead>
+        <tbody id="deviceTbody"></tbody>
+      </table>
+    </div>
+    <h3 style="font-size:15px;font-weight:600;margin:24px 0 16px;color:#E6EDF3">📊 Sesiones por Canal y Dispositivo</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Canal</th>
+            <th>📱 Móvil</th>
+            <th>💻 Escritorio</th>
+            <th>📒 Tablet</th>
+            <th>Total</th>
+            <th>% Móvil</th>
+          </tr>
+        </thead>
+        <tbody id="channelDeviceTbody"></tbody>
+      </table>
+    </div>
+    <div class="chart-card" style="margin-top:16px">
+      <h3>📊 Distribución Móvil vs Escritorio por Canal</h3>
+      <div class="chart-wrap" style="height:320px"><canvas id="channelDeviceChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- MONTHLY TABLE TAB is embedded in canales section -->
+
+  <!-- INSIGHTS -->
+  <div class="tab-panel" id="tab-insights">
+    <div class="insight-card">
+      <h4 class="blue">📊 Resumen GA4 vs Shopify</h4>
+      <ul>
+        <li>Sesiones totales GA4 <span>7,270</span></li>
+        <li>Usuarios únicos GA4 <span>5,332</span></li>
+        <li>Usuarios nuevos GA4 <span>5,086 (95.4%)</span></li>
+        <li>Conversiones GA4 <span>39</span></li>
+        <li>Tasa de conversión GA4 <span>0.54%</span></li>
+        <li>Ingresos registrados en GA4 <span>$5.249.840</span></li>
+        <li>Ingresos reales Shopify <span>Ver reporte Shopify para comparar</span></li>
+        <li>Tasa de rebote promedio <span>55.0%</span></li>
+        <li>Canal con mayor tráfico <span>Paid Social (2,886 sesiones)</span></li>
+        <li>Canal con mayor tasa conv. <span>Direct</span></li>
+      </ul>
+    </div>
+    <div class="insight-card">
+      <h4 class="red">⚠️ Problemas de Atribución y UTM</h4>
+      <ul>
+        <li>Sesiones Paid Social (Meta) <span>2,886</span></li>
+        <li>Conversiones Paid Social <span>1</span></li>
+        <li>Sesiones Directo <span>1,101 (posible falta de UTMs)</span></li>
+        <li>Problema #1 <span>UTMs sin configurar en anuncios Meta → tráfico aparece como Directo</span></li>
+        <li>Problema #2 <span>GA4 puede no registrar todas las compras de Shopify si el pixel no está bien instalado</span></li>
+        <li>Problema #3 <span>Ventana de atribución de GA4 (30 días) vs Meta (7 días click / 1 día view)</span></li>
+        <li>Acción inmediata <span>Verificar que el evento "purchase" de GA4 se dispara en la página de confirmación de Shopify</span></li>
+        <li>Objetivo UTMs <span>100% del tráfico Meta debe clasificar como "Paid Social" en GA4</span></li>
+      </ul>
+    </div>
+    <div class="insight-card">
+      <h4 class="yellow">💡 Oportunidades por Canal</h4>
+      <ul>
+        <li>Paid Social — 2,886 sesiones, rebote 62.9% <span>Conv: 0.03% · 1 conv.</span></li><li>Organic Search — 1,143 sesiones, rebote 23.1% <span>Conv: 0.44% · 5 conv.</span></li><li>Direct — 1,101 sesiones, rebote 32.9% <span>Conv: 2.27% · 25 conv.</span></li><li>Organic Social — 1,055 sesiones, rebote 42.4% <span>Conv: 0.47% · 5 conv.</span></li><li>Paid Other — 651 sesiones, rebote 64.1% <span>Conv: 0.0% · 0 conv.</span></li><li>Referral — 188 sesiones, rebote 39.5% <span>Conv: 0.0% · 0 conv.</span></li><li>Unassigned — 163 sesiones, rebote 70.5% <span>Conv: 1.23% · 2 conv.</span></li><li>Organic Shopping — 50 sesiones, rebote 30.8% <span>Conv: 2.0% · 1 conv.</span></li>
+      </ul>
+    </div>
+    <div class="insight-card">
+      <h4 class="green">✅ Recomendaciones CFO — Plan de Acción</h4>
+      <ul>
+        <li>1. Auditoría UTM (Semana 1) <span>Revisar todos los anuncios Meta y agregar utm_source=facebook&utm_medium=paid_social</span></li>
+        <li>2. Pixel GA4 en Shopify (Semana 1) <span>Instalar integración nativa GA4 de Shopify o via GTM con evento purchase</span></li>
+        <li>3. Reducir tasa de rebote (Mes 1) <span>Meta: 55.0% de rebote — Optimizar landing pages con CTA claro</span></li>
+        <li>4. Invertir en SEO (Trimestre) <span>Canal orgánico = tráfico sin costo. Objetivo: 30% del tráfico total orgánico</span></li>
+        <li>5. Email marketing (Mes 1) <span>Activar flujos de email para clientes existentes — mayor tasa de conversión que cualquier otro canal</span></li>
+        <li>6. Experiencia mobile (Mes 2) <span>Mobile representa la mayoría del tráfico — asegurar velocidad < 3s en móvil</span></li>
+        <li>7. Dashboard unificado (Mes 2) <span>Crear reporte mensual que consolide Shopify + Meta + GA4 en un solo número de ROAS real</span></li>
+        <li>8. A/B testing (Trimestre) <span>Probar distintas landing pages para mejorar tasa de conversión de 0.54% a 2%+</span></li>
+      </ul>
+    </div>
+    <div class="insight-card">
+      <h4 class="blue">🔧 Guía de Implementación UTM</h4>
+      <ul>
+        <li>Formato estándar <span>?utm_source=facebook&utm_medium=paid_social&utm_campaign={nombre_campaña}</span></li>
+        <li>Parámetro utm_source <span>facebook / instagram / google / email</span></li>
+        <li>Parámetro utm_medium <span>paid_social / cpc / email / organic</span></li>
+        <li>Parámetro utm_campaign <span>Nombre exacto de la campaña en Meta Ads</span></li>
+        <li>Parámetro utm_content <span>Nombre del anuncio específico (para rastrear creatividades)</span></li>
+        <li>Herramienta <span>Usar Google Campaign URL Builder: ga-dev-tools.google.com/campaign-url-builder/</span></li>
+        <li>Validación <span>Verificar en GA4 > Adquisición > Campañas que aparecen los UTMs dentro de 24-48h</span></li>
+        <li>Impacto esperado <span>Tráfico "Directo" debería reducirse > 50% con UTMs correctos</span></li>
+      </ul>
+    </div>
+    <div class="insight-card">
+      <h4 class="teal" style="color:#0D9488">📈 Benchmarks de Industria (Servicios de Belleza/Salud)</h4>
+      <ul>
+        <li>Tasa de conversión promedio sector <span>1.5% — 3.5%</span></li>
+        <li>Tasa de rebote promedio sector <span>45% — 65%</span></li>
+        <li>Tasa rebote actual Kyest <span>55.0% ✅ Bajo benchmark</span></li>
+        <li>Tasa conversión actual Kyest <span>0.54% ⚠️ Bajo benchmark</span></li>
+        <li>Sesiones para 5% conversión <span>780 sesiones necesarias</span></li>
+        <li>Objetivo sesiones mensuales <span>3,635 → Meta: 5,452 (+50%)</span></li>
+      </ul>
+    </div>
+    <div class="insight-card">
+      <h4 class="blue">📚 Glosario de Métricas GA4</h4>
+      <ul>
+        <li>Sesiones <span>Grupo de interacciones de un usuario en un período de 30 minutos. Reinicia a medianoche o al cambiar de campaña.</span></li>
+        <li>Usuarios <span>Número de visitantes únicos identificados por un ID de dispositivo o cookie en el período seleccionado.</span></li>
+        <li>Usuarios Nuevos <span>Visitantes que acceden al sitio por primera vez en el período. GA4 usa el evento "first_visit" para identificarlos.</span></li>
+        <li>Conversiones <span>Eventos marcados como "conversión" en GA4. Pueden ser compras, leads, formularios, etc. Configurable en GA4 > Configuración > Conversiones.</span></li>
+        <li>Tasa de Conversión <span>Porcentaje de sesiones que resultan en una conversión. Fórmula: (Conversiones / Sesiones) × 100.</span></li>
+        <li>Tasa de Rebote <span>En GA4, porcentaje de sesiones sin engagement (< 10 segundos, sin conversión, sin segunda página). Inverso del Engagement Rate.</span></li>
+        <li>Engagement Rate <span>Porcentaje de sesiones con engagement. Una sesión engaged = más de 10s, conversión, o 2+ páginas vistas.</span></li>
+        <li>Paid Social <span>Tráfico de redes sociales pagadas (Meta Ads, TikTok Ads, etc.). Requiere UTM: utm_medium=paid_social.</span></li>
+        <li>Organic Search <span>Tráfico de búsquedas orgánicas en Google, Bing, etc. No requiere pauta pagada.</span></li>
+        <li>Direct <span>Visitantes que escriben la URL directamente, usan marcadores, o provienen de fuentes sin UTM.</span></li>
+        <li>Referral <span>Tráfico de otros sitios web que enlazan al tuyo (backlinks, blogs, directorios).</span></li>
+        <li>CPM (Costo por mil impresiones) <span>Métrica de eficiencia de medios. Útil para comparar el costo de alcance entre canales.</span></li>
+        <li>ROAS (Return on Ad Spend) <span>Ingresos generados por cada peso invertido en publicidad. ROAS = Ingresos / Inversión.</span></li>
+        <li>LTV (Lifetime Value) <span>Valor total que un cliente genera durante su relación con la empresa. Mayor LTV justifica mayor CAC.</span></li>
+        <li>CAC (Customer Acquisition Cost) <span>Costo promedio de adquirir un nuevo cliente. CAC = Inversión / Nuevos Clientes.</span></li>
+      </ul>
+    </div>
+    <div class="insight-card">
+      <h4 class="yellow">🔍 Checklist de Calidad de Datos</h4>
+      <ul>
+        <li>✅ Pixel GA4 instalado <span>Verificar en GA4 > Configuración > Flujos de datos</span></li>
+        <li>⬜ Evento "purchase" configurado <span>Debe dispararse en /checkout/thank_you con valor del pedido</span></li>
+        <li>⬜ UTMs en todos los anuncios Meta <span>utm_source, utm_medium, utm_campaign obligatorios</span></li>
+        <li>⬜ Filtro IP de oficina <span>Excluir tráfico interno para datos limpios</span></li>
+        <li>⬜ Vinculación Google Ads <span>Si se usa Google Ads, vincular cuenta para datos de costo</span></li>
+        <li>⬜ Audiencias de remarketing <span>Crear audiencias en GA4 para remarketing en Google Ads y Meta</span></li>
+        <li>⬜ Alertas de anomalías <span>Configurar alertas en GA4 para caídas de tráfico > 30%</span></li>
+        <li>⬜ Reporte semanal automatizado <span>Programar envío de reporte cada lunes 8:00 AM</span></li>
+        <li>⬜ Objetivos de negocio <span>Definir KPIs trimestrales y trackear en este dashboard</span></li>
+        <li>⬜ Test A/B landing pages <span>Usar Google Optimize o Shopify nativo para testear variantes</span></li>
+      </ul>
+    </div>
+    <div class="insight-card">
+      <h4 class="red">🎯 Objetivos KPI para Próximo Trimestre</h4>
+      <ul>
+        <li>Sesiones mensuales objetivo <span>5,452 (+50% vs promedio actual 3,635)</span></li>
+        <li>Tasa de conversión objetivo <span>2.0% (actual: 0.54%)</span></li>
+        <li>Tasa de rebote objetivo <span>&lt;55% (actual: 55.0%)</span></li>
+        <li>Nuevos usuarios mensuales objetivo <span>3,305 (+30%)</span></li>
+        <li>Tráfico orgánico objetivo <span>40% del total (invertir en SEO y contenido)</span></li>
+        <li>ROAS real consolidado objetivo <span>3.5x (ver reporte Meta para ROAS actual)</span></li>
+        <li>CAC objetivo <span>Reducir 15% via optimización de campañas y aumento de conversión</span></li>
+        <li>Email marketing <span>Activar canal email para recuperar 1,525 usuarios que no convirtieron</span></li>
+      </ul>
+    </div>
+    <div class="insight-card">
+      <h4 class="green">🗓️ Plan de Seguimiento Mensual</h4>
+      <ul>
+        <li>Semana 1 (cada mes) <span>Revisar métricas de tráfico: sesiones, usuarios, tasa de rebote por canal</span></li>
+        <li>Semana 1 (cada mes) <span>Comparar gasto Meta vs ingresos Shopify → calcular ROAS real</span></li>
+        <li>Semana 2 (cada mes) <span>Analizar top 5 anuncios Meta: CTR, CPC, conversiones → ajustar presupuesto</span></li>
+        <li>Semana 3 (cada mes) <span>Revisar tasa de conversión por canal → identificar oportunidades</span></li>
+        <li>Semana 4 (cada mes) <span>Preparar reporte CFO: resumen ejecutivo, alertas, recomendaciones</span></li>
+        <li>Inicio de trimestre <span>Revisar objetivos trimestrales vs resultados reales → ajustar estrategia</span></li>
+        <li>Acciones automáticas <span>Este agente BI actualiza los reportes diariamente con datos frescos de las APIs</span></li>
+      </ul>
+    </div>
+    <div class="insight-card">
+      <h4 style="color:#9146FF">🔬 Análisis Detallado de Tráfico por Canal</h4>
+      <ul>
+        <li style="flex-direction:column;align-items:flex-start;gap:4px">
+          <strong style="color:#E6EDF3">Paid Social</strong>
+          <span style="color:#8B949E;font-size:12px">
+            2,886 sesiones · 2,256 usuarios · 2,225 nuevos · 
+            1 conv. · 0.03% conv. rate · 62.9% rebote · $50.000 ingresos
+          </span>
+        </li><li style="flex-direction:column;align-items:flex-start;gap:4px">
+          <strong style="color:#E6EDF3">Organic Search</strong>
+          <span style="color:#8B949E;font-size:12px">
+            1,143 sesiones · 698 usuarios · 683 nuevos · 
+            5 conv. · 0.44% conv. rate · 23.1% rebote · $642.000 ingresos
+          </span>
+        </li><li style="flex-direction:column;align-items:flex-start;gap:4px">
+          <strong style="color:#E6EDF3">Direct</strong>
+          <span style="color:#8B949E;font-size:12px">
+            1,101 sesiones · 803 usuarios · 802 nuevos · 
+            25 conv. · 2.27% conv. rate · 32.9% rebote · $3.892.750 ingresos
+          </span>
+        </li><li style="flex-direction:column;align-items:flex-start;gap:4px">
+          <strong style="color:#E6EDF3">Organic Social</strong>
+          <span style="color:#8B949E;font-size:12px">
+            1,055 sesiones · 915 usuarios · 891 nuevos · 
+            5 conv. · 0.47% conv. rate · 42.4% rebote · $615.090 ingresos
+          </span>
+        </li><li style="flex-direction:column;align-items:flex-start;gap:4px">
+          <strong style="color:#E6EDF3">Paid Other</strong>
+          <span style="color:#8B949E;font-size:12px">
+            651 sesiones · 352 usuarios · 326 nuevos · 
+            0 conv. · 0.0% conv. rate · 64.1% rebote · $0 ingresos
+          </span>
+        </li><li style="flex-direction:column;align-items:flex-start;gap:4px">
+          <strong style="color:#E6EDF3">Referral</strong>
+          <span style="color:#8B949E;font-size:12px">
+            188 sesiones · 108 usuarios · 100 nuevos · 
+            0 conv. · 0.0% conv. rate · 39.5% rebote · $0 ingresos
+          </span>
+        </li><li style="flex-direction:column;align-items:flex-start;gap:4px">
+          <strong style="color:#E6EDF3">Unassigned</strong>
+          <span style="color:#8B949E;font-size:12px">
+            163 sesiones · 107 usuarios · 35 nuevos · 
+            2 conv. · 1.23% conv. rate · 70.5% rebote · $50.000 ingresos
+          </span>
+        </li><li style="flex-direction:column;align-items:flex-start;gap:4px">
+          <strong style="color:#E6EDF3">Organic Shopping</strong>
+          <span style="color:#8B949E;font-size:12px">
+            50 sesiones · 10 usuarios · 7 nuevos · 
+            1 conv. · 2.0% conv. rate · 30.8% rebote · $0 ingresos
+          </span>
+        </li><li style="flex-direction:column;align-items:flex-start;gap:4px">
+          <strong style="color:#E6EDF3">Email</strong>
+          <span style="color:#8B949E;font-size:12px">
+            30 sesiones · 12 usuarios · 10 nuevos · 
+            0 conv. · 0.0% conv. rate · 41.0% rebote · $0 ingresos
+          </span>
+        </li><li style="flex-direction:column;align-items:flex-start;gap:4px">
+          <strong style="color:#E6EDF3">Paid Search</strong>
+          <span style="color:#8B949E;font-size:12px">
+            7 sesiones · 7 usuarios · 7 nuevos · 
+            0 conv. · 0.0% conv. rate · 100.0% rebote · $0 ingresos
+          </span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <span>🕐 Última actualización: 24/02/2026 00:16 · Kyest BI Dashboard</span>
+    <a href="https://aictmopenclaw-a11y.github.io/kyest-dashboard/">← Volver al Hub</a>
+  </footer>
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────
+const MONTHLY_LABELS = ["Ene 2026", "Feb 2026"];
+const MONTHLY_SESSIONS = [2525, 4745];
+const MONTHLY_USERS = [1913, 3419];
+const MONTHLY_CONV = [18, 21];
+const CHANNEL_LABELS = ["Paid Social", "Organic Search", "Direct", "Organic Social", "Paid Other", "Referral", "Unassigned", "Organic Shopping", "Email", "Paid Search"];
+const CHANNEL_SESSIONS = [2886, 1143, 1101, 1055, 651, 188, 163, 50, 30, 7];
+const CHANNEL_CONV = [0.03, 0.44, 2.27, 0.47, 0.0, 0.0, 1.23, 2.0, 0.0, 0.0];
+const CHANNELS = [{"channel": "Paid Social", "sessions": 2886, "users": 2256, "newUsers": 2225, "conversions": 1, "revenue": 50000.0, "revenue_fmt": "$50.000", "bounceRate": 62.9, "convRate": 0.03}, {"channel": "Organic Search", "sessions": 1143, "users": 698, "newUsers": 683, "conversions": 5, "revenue": 642000.0, "revenue_fmt": "$642.000", "bounceRate": 23.1, "convRate": 0.44}, {"channel": "Direct", "sessions": 1101, "users": 803, "newUsers": 802, "conversions": 25, "revenue": 3892750.0, "revenue_fmt": "$3.892.750", "bounceRate": 32.9, "convRate": 2.27}, {"channel": "Organic Social", "sessions": 1055, "users": 915, "newUsers": 891, "conversions": 5, "revenue": 615090.0, "revenue_fmt": "$615.090", "bounceRate": 42.4, "convRate": 0.47}, {"channel": "Paid Other", "sessions": 651, "users": 352, "newUsers": 326, "conversions": 0, "revenue": 0.0, "revenue_fmt": "$0", "bounceRate": 64.1, "convRate": 0.0}, {"channel": "Referral", "sessions": 188, "users": 108, "newUsers": 100, "conversions": 0, "revenue": 0.0, "revenue_fmt": "$0", "bounceRate": 39.5, "convRate": 0.0}, {"channel": "Unassigned", "sessions": 163, "users": 107, "newUsers": 35, "conversions": 2, "revenue": 50000.0, "revenue_fmt": "$50.000", "bounceRate": 70.5, "convRate": 1.23}, {"channel": "Organic Shopping", "sessions": 50, "users": 10, "newUsers": 7, "conversions": 1, "revenue": 0.0, "revenue_fmt": "$0", "bounceRate": 30.8, "convRate": 2.0}, {"channel": "Email", "sessions": 30, "users": 12, "newUsers": 10, "conversions": 0, "revenue": 0.0, "revenue_fmt": "$0", "bounceRate": 41.0, "convRate": 0.0}, {"channel": "Paid Search", "sessions": 7, "users": 7, "newUsers": 7, "conversions": 0, "revenue": 0.0, "revenue_fmt": "$0", "bounceRate": 100.0, "convRate": 0.0}];
+const DEVICES = [{"device": "mobile", "label": "M\u00f3vil", "sessions": 6151, "users": 4713, "conversions": 31, "share": 84.6, "convRate": 0.5}, {"device": "desktop", "label": "Escritorio", "sessions": 1073, "users": 514, "conversions": 7, "share": 14.8, "convRate": 0.65}, {"device": "tablet", "label": "Tablet", "sessions": 50, "users": 41, "conversions": 1, "share": 0.7, "convRate": 2.0}];
+const DEVICE_LABELS = ["M\u00f3vil", "Escritorio", "Tablet"];
+const DEVICE_VALS = [6151, 1073, 50];
+const DEVICE_BG = ["#3478F6", "#238636", "#D29922"];
+const DEVICE_CONV = [31, 7, 1];
+const MONTHLY_TABLE = [{"month": "Enero 2026", "sessions": 2525, "users": 1913, "newUsers": 1883, "conversions": 18, "convRate": 0.71, "bounceRate": 53.6, "revenue": 2161150.0, "revenue_fmt": "$2.161.150"}, {"month": "Febrero 2026", "sessions": 4745, "users": 3419, "newUsers": 3203, "conversions": 21, "convRate": 0.44, "bounceRate": 56.4, "revenue": 3088690.0, "revenue_fmt": "$3.088.690"}];
+const TOP3_CHANNELS = ["Paid Social", "Organic Search", "Direct"];
+const TOP3_DATA = [{"channel": "Paid Social", "data": [572, 2319]}, {"channel": "Organic Search", "data": [515, 626]}, {"channel": "Direct", "data": [500, 596]}];
+const AVG_ENGAGEMENT = {"Paid Social": 37.1, "Organic Social": 57.6, "Organic Search": 76.9, "Direct": 67.1, "Paid Other": 35.9, "Referral": 60.5, "Unassigned": 29.5, "Organic Shopping": 69.2, "Email": 59.0, "Paid Search": 0.0};
+const CHANNEL_DEVICE_DATA = {"Paid Social": {"mobile": 2863, "tablet": 16, "desktop": 7}, "Organic Social": {"mobile": 956, "desktop": 99}, "Organic Search": {"mobile": 770, "desktop": 372, "tablet": 1}, "Direct": {"mobile": 645, "desktop": 455, "tablet": 1}, "Paid Other": {"mobile": 624, "tablet": 27}, "Referral": {"mobile": 143, "desktop": 45}, "Unassigned": {"mobile": 118, "desktop": 40, "tablet": 5}, "Organic Shopping": {"desktop": 41, "mobile": 9}, "Email": {"mobile": 23, "desktop": 7}, "Paid Search": {"desktop": 7}};
+// Full raw data for completeness
+const RAW_MONTHLY = [{"month": "202601", "channel": "Paid Social", "sessions": 572, "users": 538, "newUsers": 534, "conversions": 1, "revenue": 50000, "bounceRate": 0.834, "avgDuration": 32.2}, {"month": "202601", "channel": "Organic Social", "sessions": 547, "users": 481, "newUsers": 476, "conversions": 3, "revenue": 320400, "bounceRate": 0.581, "avgDuration": 123.0}, {"month": "202601", "channel": "Organic Search", "sessions": 515, "users": 331, "newUsers": 322, "conversions": 2, "revenue": 50000, "bounceRate": 0.317, "avgDuration": 290.0}, {"month": "202601", "channel": "Direct", "sessions": 500, "users": 323, "newUsers": 324, "conversions": 10, "revenue": 1715750, "bounceRate": 0.446, "avgDuration": 151.4}, {"month": "202601", "channel": "Paid Other", "sessions": 241, "users": 168, "newUsers": 167, "conversions": 0, "revenue": 0, "bounceRate": 0.639, "avgDuration": 266.3}, {"month": "202601", "channel": "Referral", "sessions": 68, "users": 37, "newUsers": 33, "conversions": 0, "revenue": 0, "bounceRate": 0.397, "avgDuration": 560.6}, {"month": "202601", "channel": "Organic Shopping", "sessions": 40, "users": 7, "newUsers": 4, "conversions": 1, "revenue": 0, "bounceRate": 0.225, "avgDuration": 1128.9}, {"month": "202601", "channel": "Unassigned", "sessions": 22, "users": 20, "newUsers": 16, "conversions": 1, "revenue": 25000, "bounceRate": 0.591, "avgDuration": 318.1}, {"month": "202601", "channel": "Email", "sessions": 18, "users": 6, "newUsers": 5, "conversions": 0, "revenue": 0, "bounceRate": 0.333, "avgDuration": 254.7}, {"month": "202601", "channel": "Paid Search", "sessions": 2, "users": 2, "newUsers": 2, "conversions": 0, "revenue": 0, "bounceRate": 1.0, "avgDuration": 0}, {"month": "202602", "channel": "Paid Social", "sessions": 2319, "users": 1732, "newUsers": 1691, "conversions": 0, "revenue": 0, "bounceRate": 0.735, "avgDuration": 96.6}, {"month": "202602", "channel": "Organic Search", "sessions": 626, "users": 385, "newUsers": 361, "conversions": 3, "revenue": 592000, "bounceRate": 0.35, "avgDuration": 194.7}, {"month": "202602", "channel": "Direct", "sessions": 596, "users": 491, "newUsers": 478, "conversions": 15, "revenue": 2177000, "bounceRate": 0.532, "avgDuration": 113.4}, {"month": "202602", "channel": "Organic Social", "sessions": 506, "users": 443, "newUsers": 415, "conversions": 2, "revenue": 294690, "bounceRate": 0.377, "avgDuration": 129.7}, {"month": "202602", "channel": "Paid Other", "sessions": 411, "users": 191, "newUsers": 159, "conversions": 0, "revenue": 0, "bounceRate": 0.657, "avgDuration": 320.4}, {"month": "202602", "channel": "Unassigned", "sessions": 141, "users": 88, "newUsers": 19, "conversions": 1, "revenue": 25000, "bounceRate": 0.872, "avgDuration": 232.7}, {"month": "202602", "channel": "Referral", "sessions": 119, "users": 73, "newUsers": 67, "conversions": 0, "revenue": 0, "bounceRate": 0.412, "avgDuration": 256.5}, {"month": "202602", "channel": "Email", "sessions": 12, "users": 7, "newUsers": 5, "conversions": 0, "revenue": 0, "bounceRate": 0.5, "avgDuration": 158.5}, {"month": "202602", "channel": "Organic Shopping", "sessions": 10, "users": 4, "newUsers": 3, "conversions": 0, "revenue": 0, "bounceRate": 0.2, "avgDuration": 306.5}, {"month": "202602", "channel": "Paid Search", "sessions": 5, "users": 5, "newUsers": 5, "conversions": 0, "revenue": 0, "bounceRate": 1.0, "avgDuration": 0}];
+const RAW_CHANNELS = [{"channel": "Paid Social", "device": "mobile", "sessions": 2863, "users": 2239, "newUsers": 2209, "conversions": 0, "revenue": 0, "bounceRate": 0.754, "avgDuration": 83.2, "engagementRate": 0.246}, {"channel": "Organic Social", "device": "mobile", "sessions": 956, "users": 874, "newUsers": 852, "conversions": 4, "revenue": 615090, "bounceRate": 0.495, "avgDuration": 93.2, "engagementRate": 0.505}, {"channel": "Organic Search", "device": "mobile", "sessions": 770, "users": 573, "newUsers": 565, "conversions": 4, "revenue": 617000, "bounceRate": 0.312, "avgDuration": 182.5, "engagementRate": 0.688}, {"channel": "Direct", "device": "mobile", "sessions": 645, "users": 502, "newUsers": 500, "conversions": 21, "revenue": 3649250, "bounceRate": 0.491, "avgDuration": 136.1, "engagementRate": 0.509}, {"channel": "Paid Other", "device": "mobile", "sessions": 624, "users": 329, "newUsers": 303, "conversions": 0, "revenue": 0, "bounceRate": 0.651, "avgDuration": 305.5, "engagementRate": 0.349}, {"channel": "Direct", "device": "desktop", "sessions": 455, "users": 300, "newUsers": 301, "conversions": 3, "revenue": 150000, "bounceRate": 0.497, "avgDuration": 121.4, "engagementRate": 0.503}, {"channel": "Organic Search", "device": "desktop", "sessions": 372, "users": 124, "newUsers": 117, "conversions": 1, "revenue": 25000, "bounceRate": 0.382, "avgDuration": 351.4, "engagementRate": 0.618}, {"channel": "Referral", "device": "mobile", "sessions": 143, "users": 102, "newUsers": 97, "conversions": 0, "revenue": 0, "bounceRate": 0.413, "avgDuration": 101.0, "engagementRate": 0.587}, {"channel": "Unassigned", "device": "mobile", "sessions": 118, "users": 80, "newUsers": 30, "conversions": 2, "revenue": 50000, "bounceRate": 0.839, "avgDuration": 179.0, "engagementRate": 0.161}, {"channel": "Organic Social", "device": "desktop", "sessions": 99, "users": 41, "newUsers": 39, "conversions": 1, "revenue": 0, "bounceRate": 0.354, "avgDuration": 442.8, "engagementRate": 0.646}, {"channel": "Referral", "device": "desktop", "sessions": 45, "users": 6, "newUsers": 3, "conversions": 0, "revenue": 0, "bounceRate": 0.378, "avgDuration": 1204.5, "engagementRate": 0.622}, {"channel": "Organic Shopping", "device": "desktop", "sessions": 41, "users": 3, "newUsers": 1, "conversions": 1, "revenue": 0, "bounceRate": 0.171, "avgDuration": 1167.0, "engagementRate": 0.829}, {"channel": "Unassigned", "device": "desktop", "sessions": 40, "users": 22, "newUsers": 2, "conversions": 0, "revenue": 0, "bounceRate": 0.875, "avgDuration": 423.7, "engagementRate": 0.125}, {"channel": "Paid Other", "device": "tablet", "sessions": 27, "users": 23, "newUsers": 23, "conversions": 0, "revenue": 0, "bounceRate": 0.63, "avgDuration": 194.6, "engagementRate": 0.37}, {"channel": "Email", "device": "mobile", "sessions": 23, "users": 7, "newUsers": 6, "conversions": 0, "revenue": 0, "bounceRate": 0.391, "avgDuration": 208.7, "engagementRate": 0.609}, {"channel": "Paid Social", "device": "tablet", "sessions": 16, "users": 11, "newUsers": 11, "conversions": 0, "revenue": 0, "bounceRate": 0.563, "avgDuration": 227.4, "engagementRate": 0.438}, {"channel": "Organic Shopping", "device": "mobile", "sessions": 9, "users": 7, "newUsers": 6, "conversions": 0, "revenue": 0, "bounceRate": 0.444, "avgDuration": 41.7, "engagementRate": 0.556}, {"channel": "Email", "device": "desktop", "sessions": 7, "users": 5, "newUsers": 4, "conversions": 0, "revenue": 0, "bounceRate": 0.429, "avgDuration": 241.0, "engagementRate": 0.571}, {"channel": "Paid Search", "device": "desktop", "sessions": 7, "users": 7, "newUsers": 7, "conversions": 0, "revenue": 0, "bounceRate": 1.0, "avgDuration": 0, "engagementRate": 0}, {"channel": "Paid Social", "device": "desktop", "sessions": 7, "users": 6, "newUsers": 5, "conversions": 1, "revenue": 50000, "bounceRate": 0.571, "avgDuration": 66.8, "engagementRate": 0.429}, {"channel": "Unassigned", "device": "tablet", "sessions": 5, "users": 5, "newUsers": 3, "conversions": 0, "revenue": 0, "bounceRate": 0.4, "avgDuration": 348.6, "engagementRate": 0.6}, {"channel": "Direct", "device": "tablet", "sessions": 1, "users": 1, "newUsers": 1, "conversions": 1, "revenue": 93500, "bounceRate": 0, "avgDuration": 233.9, "engagementRate": 1.0}, {"channel": "Organic Search", "device": "tablet", "sessions": 1, "users": 1, "newUsers": 1, "conversions": 0, "revenue": 0, "bounceRate": 0, "avgDuration": 21.4, "engagementRate": 1.0}];
+
+// ── Tabs ──────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn, .tab-link').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.preventDefault();
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    document.querySelectorAll('.tab-link').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + tab));
+  });
+});
+
+// ── Charts ────────────────────────────────────────────────────────────────
+const baseOpts = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{ legend:{ labels:{ color:'#8B949E' } } },
+  scales:{ x:{ ticks:{ color:'#8B949E', maxRotation:45 }, grid:{ color:'#1C2333' } },
+            y:{ ticks:{ color:'#8B949E' }, grid:{ color:'#1C2333' } } }
+};
+
+new Chart(document.getElementById('monthlyChart').getContext('2d'), {
+  type:'bar',
+  data:{ labels:MONTHLY_LABELS, datasets:[
+    { label:'Sesiones', data:MONTHLY_SESSIONS, backgroundColor:'#3478F6', borderRadius:3 },
+    { label:'Usuarios', data:MONTHLY_USERS, backgroundColor:'#0D9488', borderRadius:3 }
+  ] },
+  options:baseOpts
+});
+
+new Chart(document.getElementById('convChart').getContext('2d'), {
+  type:'line',
+  data:{ labels:MONTHLY_LABELS, datasets:[{ label:'Conversiones', data:MONTHLY_CONV, borderColor:'#238636', backgroundColor:'rgba(35,134,54,.15)', fill:true, tension:.3, pointRadius:4 }] },
+  options:baseOpts
+});
+
+new Chart(document.getElementById('channelSessionsChart').getContext('2d'), {
+  type:'bar',
+  data:{ labels:CHANNEL_LABELS.map(l=>l.substring(0,20)), datasets:[{ label:'Sesiones', data:CHANNEL_SESSIONS, backgroundColor:'#3478F6', borderRadius:4 }] },
+  options:{...baseOpts, indexAxis:'y'}
+});
+
+new Chart(document.getElementById('channelConvChart').getContext('2d'), {
+  type:'bar',
+  data:{ labels:CHANNEL_LABELS.map(l=>l.substring(0,20)), datasets:[{ label:'Tasa de Conversión %', data:CHANNEL_CONV, backgroundColor:'#238636', borderRadius:4 }] },
+  options:{...baseOpts, indexAxis:'y'}
+});
+
+new Chart(document.getElementById('devicePieChart').getContext('2d'), {
+  type:'doughnut',
+  data:{ labels:DEVICE_LABELS, datasets:[{ data:DEVICE_VALS, backgroundColor:DEVICE_BG, borderWidth:0 }] },
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ color:'#E6EDF3' } } } }
+});
+
+new Chart(document.getElementById('deviceConvChart').getContext('2d'), {
+  type:'bar',
+  data:{ labels:DEVICE_LABELS, datasets:[{ label:'Conversiones', data:DEVICE_CONV, backgroundColor:DEVICE_BG, borderRadius:6 }] },
+  options:baseOpts
+});
+
+// Channel trend chart
+const trendColors = ['#3478F6','#238636','#D29922','#DA3633','#0D9488'];
+new Chart(document.getElementById('channelTrendChart').getContext('2d'), {
+  type:'line',
+  data:{ labels:MONTHLY_LABELS, datasets: TOP3_DATA.map((ch,i) => ({
+    label: ch.channel, data: ch.data,
+    borderColor: trendColors[i], backgroundColor: trendColors[i]+'22',
+    fill: false, tension:.3, pointRadius:3
+  })) },
+  options:baseOpts
+});
+
+// Engagement chart
+const engLabels = Object.keys(AVG_ENGAGEMENT);
+const engVals = Object.values(AVG_ENGAGEMENT);
+new Chart(document.getElementById('engagementChart').getContext('2d'), {
+  type:'bar',
+  data:{ labels:engLabels.map(l=>l.substring(0,18)), datasets:[{ label:'Tasa Engagement %', data:engVals, backgroundColor:'#0D9488', borderRadius:4 }] },
+  options:baseOpts
+});
+
+// Monthly table
+document.getElementById('monthlyTbody').innerHTML = MONTHLY_TABLE.map(m => `
+  <tr>
+    <td style="font-weight:600">${m.month}</td>
+    <td>${m.sessions.toLocaleString()}</td>
+    <td>${m.users.toLocaleString()}</td>
+    <td style="color:#8B949E">${m.newUsers.toLocaleString()}</td>
+    <td style="color:#238636;font-weight:600">${m.conversions}</td>
+    <td>${m.convRate.toFixed(2)}%</td>
+    <td style="color:${m.bounceRate>70?'#DA3633':m.bounceRate>50?'#D29922':'#238636'}">${m.bounceRate.toFixed(1)}%</td>
+    <td>${m.revenue_fmt}</td>
+  </tr>`).join('');
+
+// ── Channels table ─────────────────────────────────────────────────────────
+let chSort = {col:1, dir:-1};
+function sortCh(col) {
+  chSort.dir = chSort.col===col ? chSort.dir*-1 : -1;
+  chSort.col = col;
+  const th = document.querySelectorAll('#channelsTable thead th');
+  th.forEach((t,i) => { t.classList.remove('sort-asc','sort-desc'); if(i===col) t.classList.add(chSort.dir===1?'sort-asc':'sort-desc'); });
+  renderChannels();
+}
+
+function renderChannels() {
+  const cols = ['channel','sessions','users','newUsers','conversions','convRate','bounceRate','revenue'];
+  const sorted = [...CHANNELS].sort((a,b) => {
+    const av = a[cols[chSort.col]] ?? 0; const bv = b[cols[chSort.col]] ?? 0;
+    if(typeof av === 'number') return (av-bv)*chSort.dir;
+    return String(av).localeCompare(String(bv))*chSort.dir;
+  });
+  const maxSess = Math.max(...sorted.map(c=>c.sessions));
+  document.getElementById('channelsTbody').innerHTML = sorted.map(c => `
+    <tr>
+      <td style="font-weight:600">${c.channel}</td>
+      <td>
+        ${c.sessions.toLocaleString()}
+        <div class="progress-bar"><div class="progress-bar-fill" style="width:${(c.sessions/maxSess*100).toFixed(0)}%"></div></div>
+      </td>
+      <td>${c.users.toLocaleString()}</td>
+      <td>${c.newUsers.toLocaleString()}</td>
+      <td style="color:#238636;font-weight:600">${c.conversions}</td>
+      <td>${c.convRate.toFixed(2)}%</td>
+      <td style="color:${c.bounceRate>70?'#DA3633':c.bounceRate>50?'#D29922':'#238636'}">${c.bounceRate.toFixed(1)}%</td>
+      <td>${c.revenue_fmt}</td>
+    </tr>`).join('');
+}
+
+// ── Device cards ──────────────────────────────────────────────────────────
+const deviceIcons = {'Móvil':'📱','Escritorio':'💻','Tablet':'📒'};
+document.getElementById('deviceCards').innerHTML = DEVICES.map(d => `
+  <div class="device-card">
+    <div class="icon">${deviceIcons[d.label]||'🖥️'}</div>
+    <div class="name">${d.label}</div>
+    <div class="val">${d.sessions.toLocaleString()}</div>
+    <div class="share">${d.share}% del tráfico</div>
+  </div>`).join('');
+
+document.getElementById('deviceTbody').innerHTML = DEVICES.map(d => `
+  <tr>
+    <td style="font-weight:600">${deviceIcons[d.label]||''} ${d.label}</td>
+    <td>${d.sessions.toLocaleString()}</td>
+    <td>${d.users.toLocaleString()}</td>
+    <td style="color:#238636;font-weight:600">${d.conversions}</td>
+    <td>${d.convRate.toFixed(2)}%</td>
+    <td>
+      ${d.share}%
+      <div class="progress-bar"><div class="progress-bar-fill" style="width:${d.share}%"></div></div>
+    </td>
+  </tr>`).join('');
+
+renderChannels();
+
+// Cross table: channels x months
+const allMonths = [...new Set(RAW_MONTHLY.map(r=>r.month))].sort();
+const allChannels = [...new Set(RAW_MONTHLY.map(r=>r.channel))];
+const crossMap = {};
+RAW_MONTHLY.forEach(r => {
+  if (!crossMap[r.channel]) crossMap[r.channel] = {};
+  crossMap[r.channel][r.month] = (crossMap[r.channel][r.month]||0) + (r.sessions||0);
+});
+const monthLabelsShort = allMonths.map(m => {
+  try { const d=new Date(m.substring(0,4)+'-'+m.substring(4,6)+'-01'); return d.toLocaleDateString('es-CL',{month:'short',year:'2-digit'}); } catch(e){ return m; }
+});
+document.getElementById('crossHead').innerHTML = `<tr><th>Canal</th>${monthLabelsShort.map(m=>`<th>${m}</th>`).join('')}<th>Total</th></tr>`;
+const crossColors = ['#3478F6','#238636','#D29922','#DA3633','#0D9488','#9146FF','#8B949E','#F0883E','#58A6FF','#3FB950'];
+document.getElementById('crossBody').innerHTML = allChannels.map((ch,i) => {
+  const vals = allMonths.map(m => crossMap[ch]?.[m]||0);
+  const total = vals.reduce((a,b)=>a+b,0);
+  const maxV = Math.max(...vals.filter(v=>v>0),1);
+  return `<tr>
+    <td style="font-weight:600;color:${crossColors[i%crossColors.length]}">${ch}</td>
+    ${vals.map(v => `<td style="color:${v>0?'#E6EDF3':'#444C56'};background:rgba(${v/maxV*0.3},0,0,0)">
+      ${v>0?v.toLocaleString():'—'}</td>`).join('')}
+    <td style="font-weight:700;color:#E6EDF3">${total.toLocaleString()}</td>
+  </tr>`;
+}).join('') + `<tr style="border-top:2px solid #30363D">
+  <td style="font-weight:700;color:#8B949E">TOTAL</td>
+  ${allMonths.map(m => {
+    const t = allChannels.reduce((s,ch)=>s+(crossMap[ch]?.[m]||0),0);
+    return `<td style="font-weight:700;color:#E6EDF3">${t.toLocaleString()}</td>`;
+  }).join('')}
+  <td style="font-weight:700;color:#3478F6">${allChannels.reduce((s,ch)=>s+allMonths.reduce((ss,m)=>ss+(crossMap[ch]?.[m]||0),0),0).toLocaleString()}</td>
+</tr>`;
+
+// Channel-device breakdown table
+const cdKeys = Object.keys(CHANNEL_DEVICE_DATA);
+document.getElementById('channelDeviceTbody').innerHTML = cdKeys.map(ch => {
+  const d = CHANNEL_DEVICE_DATA[ch]||{};
+  const mob = d.mobile||0, desk = d.desktop||0, tab = d.tablet||0;
+  const total = mob+desk+tab;
+  const mobPct = total>0?(mob/total*100).toFixed(0):0;
+  return `<tr>
+    <td style="font-weight:600">${ch}</td>
+    <td style="color:#3478F6">${mob.toLocaleString()}</td>
+    <td style="color:#238636">${desk.toLocaleString()}</td>
+    <td style="color:#D29922">${tab.toLocaleString()}</td>
+    <td style="font-weight:600">${total.toLocaleString()}</td>
+    <td>
+      ${mobPct}%
+      <div class="progress-bar"><div class="progress-bar-fill" style="width:${mobPct}%;background:#3478F6"></div></div>
+    </td>
+  </tr>`;
+}).join('');
+
+// Channel-device stacked chart
+const cdLabels = cdKeys.map(k=>k.substring(0,15));
+new Chart(document.getElementById('channelDeviceChart').getContext('2d'), {
+  type:'bar',
+  data:{ labels:cdLabels, datasets:[
+    { label:'Móvil', data:cdKeys.map(k=>(CHANNEL_DEVICE_DATA[k]||{}).mobile||0), backgroundColor:'#3478F6', borderRadius:2 },
+    { label:'Escritorio', data:cdKeys.map(k=>(CHANNEL_DEVICE_DATA[k]||{}).desktop||0), backgroundColor:'#238636', borderRadius:2 },
+    { label:'Tablet', data:cdKeys.map(k=>(CHANNEL_DEVICE_DATA[k]||{}).tablet||0), backgroundColor:'#D29922', borderRadius:2 },
+  ] },
+  options:{...baseOpts, scales:{ x:{...baseOpts.scales.x, stacked:true}, y:{...baseOpts.scales.y, stacked:true} }}
+});
+
+// Per-channel cards
+const chColors = {'Paid Social':'#3478F6','Organic Search':'#238636','Direct':'#8B949E','Organic Social':'#0D9488','Email':'#D29922','Referral':'#DA3633','Paid Search':'#9146FF','Unassigned':'#444C56'};
+const maxChSess = Math.max(...CHANNELS.map(c=>c.sessions));
+document.getElementById('channelCards').innerHTML = CHANNELS.map(ch => {
+  const color = chColors[ch.channel] || '#3478F6';
+  const pct = (ch.sessions/maxChSess*100).toFixed(0);
+  const mobile = (CHANNEL_DEVICE_DATA[ch.channel]||{}).mobile||0;
+  const desktop = (CHANNEL_DEVICE_DATA[ch.channel]||{}).desktop||0;
+  const engagePct = AVG_ENGAGEMENT[ch.channel]||0;
+  return `<div style="background:#161B22;border:1px solid #30363D;border-top:3px solid ${color};border-radius:10px;padding:16px">
+    <div style="font-weight:600;font-size:14px;margin-bottom:12px;color:#E6EDF3">${ch.channel}</div>
+    <div style="font-size:12px;color:#8B949E;margin-bottom:6px">Sesiones</div>
+    <div style="font-size:22px;font-weight:700;color:#E6EDF3;margin-bottom:8px">${ch.sessions.toLocaleString()}</div>
+    <div style="height:4px;background:#1C2333;border-radius:2px;margin-bottom:12px">
+      <div style="height:100%;width:${pct}%;background:${color};border-radius:2px"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+      <div><span style="color:#8B949E">Usuarios</span><br><strong>${ch.users.toLocaleString()}</strong></div>
+      <div><span style="color:#8B949E">Conversiones</span><br><strong style="color:#238636">${ch.conversions}</strong></div>
+      <div><span style="color:#8B949E">Tasa Conv.</span><br><strong>${ch.convRate.toFixed(2)}%</strong></div>
+      <div><span style="color:#8B949E">Tasa Rebote</span><br><strong style="color:${ch.bounceRate>70?'#DA3633':ch.bounceRate>50?'#D29922':'#238636'}">${ch.bounceRate.toFixed(1)}%</strong></div>
+      <div><span style="color:#8B949E">Móvil</span><br><strong>${mobile.toLocaleString()}</strong></div>
+      <div><span style="color:#8B949E">Escritorio</span><br><strong>${desktop.toLocaleString()}</strong></div>
+      <div><span style="color:#8B949E">Engagement</span><br><strong style="color:#0D9488">${engagePct.toFixed(1)}%</strong></div>
+      <div><span style="color:#8B949E">Ingresos</span><br><strong>${ch.revenue_fmt}</strong></div>
+    </div>
+  </div>`;
+}).join('');
+</script>
+</body>
+</html>
