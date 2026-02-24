@@ -2,127 +2,42 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KYEST · BI Dashboard</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kyest BI Hub</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: #0C1117;
-    color: #E6EDF3;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-  }
-  .header {
-    text-align: center;
-    margin-bottom: 60px;
-  }
-  .header h1 {
-    font-size: 2.8rem;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    color: #E6EDF3;
-    margin-bottom: 10px;
-  }
-  .header h1 span {
-    color: #3478F6;
-  }
-  .header p {
-    font-size: 1.1rem;
-    color: #8B949E;
-    letter-spacing: 0.5px;
-  }
-  .cards {
-    display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-    justify-content: center;
-    max-width: 1000px;
-    width: 100%;
-  }
-  .card {
-    background: #161B22;
-    border: 1px solid #21262D;
-    border-radius: 12px;
-    padding: 32px 28px;
-    width: 290px;
-    transition: border-color 0.2s, transform 0.2s;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .card:hover {
-    border-color: #3478F6;
-    transform: translateY(-3px);
-  }
-  .card .icon {
-    font-size: 2rem;
-    margin-bottom: 4px;
-  }
-  .card h2 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #E6EDF3;
-  }
-  .card p {
-    font-size: 0.9rem;
-    color: #8B949E;
-    line-height: 1.5;
-    flex: 1;
-  }
-  .card a {
-    display: inline-block;
-    background: #3478F6;
-    color: #fff;
-    text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    text-align: center;
-    transition: background 0.2s;
-    margin-top: 8px;
-  }
-  .card a:hover {
-    background: #2563EB;
-  }
-  footer {
-    margin-top: 60px;
-    color: #4B5563;
-    font-size: 0.82rem;
-    text-align: center;
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0C1117;color:#E6EDF3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem}
+h1{font-size:2rem;margin-bottom:.5rem;color:#E6EDF3}
+.sub{color:#8B949E;margin-bottom:3rem;font-size:.95rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;width:100%;max-width:900px}
+.card{background:#161B22;border:1px solid #30363D;border-radius:12px;padding:2rem;text-decoration:none;color:#E6EDF3;transition:border-color .2s,transform .2s}
+.card:hover{border-color:#3478F6;transform:translateY(-2px)}
+.card-icon{font-size:2.5rem;margin-bottom:1rem}
+.card-title{font-size:1.2rem;font-weight:600;margin-bottom:.5rem}
+.card-desc{color:#8B949E;font-size:.9rem;line-height:1.5}
+.footer{margin-top:3rem;color:#8B949E;font-size:.8rem}
 </style>
 </head>
 <body>
-  <div class="header">
-    <h1>KYEST · <span>BI Dashboard</span></h1>
-    <p>Centro de análisis de negocio</p>
-  </div>
-  <div class="cards">
-    <div class="card">
-      <div class="icon">🛒</div>
-      <h2>Reporte Shopify</h2>
-      <p>Ventas, productos, clientes, LTV y métricas clave de tu tienda online.</p>
-      <a href="./shopify/">Ver reporte →</a>
-    </div>
-    <div class="card">
-      <div class="icon">📢</div>
-      <h2>Reporte Meta Ads</h2>
-      <p>Campañas, anuncios, ROAS, gasto publicitario y rendimiento de audiencias.</p>
-      <a href="./meta/">Ver reporte →</a>
-    </div>
-    <div class="card">
-      <div class="icon">📊</div>
-      <h2>Google Analytics</h2>
-      <p>Tráfico web, canales de adquisición, dispositivos y comportamiento de usuarios.</p>
-      <a href="./analytics/">Ver reporte →</a>
-    </div>
-  </div>
-  <footer>Actualizado: 23/02/2026 · Datos reales · Kyest BI Team</footer>
+<h1>🏪 Kyest BI Dashboard</h1>
+<p class="sub">Actualizado: 2026-02-23 · Datos reales · No estimados</p>
+<div class="grid">
+  <a href="shopify/" class="card">
+    <div class="card-icon">🛒</div>
+    <div class="card-title">Shopify</div>
+    <div class="card-desc">Ventas, órdenes, clientes, productos y análisis de retención</div>
+  </a>
+  <a href="meta/" class="card">
+    <div class="card-icon">📱</div>
+    <div class="card-title">Meta Ads</div>
+    <div class="card-desc">Campañas, ad sets, anuncios individuales, ROAS y gasto diario</div>
+  </a>
+  <a href="analytics/" class="card">
+    <div class="card-icon">📊</div>
+    <div class="card-title">Google Analytics</div>
+    <div class="card-desc">Sesiones, canales, dispositivos y conversiones</div>
+  </a>
+</div>
+<div class="footer">Kyest BI · Datos verificados · CFO View</div>
 </body>
 </html>
